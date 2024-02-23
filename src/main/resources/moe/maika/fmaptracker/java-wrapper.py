@@ -1,0 +1,48 @@
+import typing
+import json
+import logic
+import duelists
+from duelists import Duelist
+from logic import OptionsProxy
+from utils import Constants
+from cards import Card
+from drop_pools import Drop
+
+
+duelist_unlock_order: typing.Tuple[typing.Tuple[Duelist, ...]] = tuple()
+final_6_order: typing.Tuple[Duelist] = tuple()
+options: typing.Optional[OptionsProxy] = None
+
+
+def initialize(slot_data_raw: str) -> None:
+    global duelist_unlock_order, final_6_order, options
+    slot_data: typing.Dict = json.loads(slot_data_raw)
+    duelist_unlock_order = duelists.map_ids_to_duelists(slot_data[Constants.DUELIST_UNLOCK_ORDER_KEY])
+    final_6_order = tuple([duelists.ids_to_duelists[i] for i in slot_data[Constants.FINAL_6_ORDER_KEY]])
+    options = OptionsProxy(slot_data[Constants.GAME_OPTIONS_KEY])
+
+
+def get_tracker_info(
+        items_received_ids: typing.Sequence[int],
+        missing_location_ids: typing.Sequence[int]
+) -> typing.Dict[str, typing.Any]:
+    progressive_duelist_item_count: int = sum(1 for i in items_received_ids if i == Constants.PROGRESSIVE_DUELIST_ITEM_ID)
+    unlocked_duelists: typing.List[Duelist] = [d for d in logic.get_unlocked_duelists(
+        progressive_duelist_item_count, duelist_unlock_order, final_6_order
+    )]
+
+    all_cards_with_items: typing.List[Card] = logic.get_all_cards_that_have_locations(options)
+    missing_cards: typing.Dict[int, Card] = {card.id: card for card in all_cards_with_items if card.location_id in missing_location_ids}
+    # TODO (maybe?) pass in-logic droppools to Tracker instead of filtering them
+    in_logic_cards: typing.Dict[int, Card] = {
+        logic_card.card.id: logic_card.card for logic_card in logic.filter_to_in_logic_cards(missing_cards.values(), options)
+    }
+    duelists_to_pools = {d: [] for d in unlocked_duelists}
+    # (card_name, duel_rank, probability, in_logic: bool)
+    for id, card in missing_cards.items():
+        drop_pools: typing.Tuple[Drop, ...] = card.drop_pool
+        for drop in drop_pools:
+            if drop.duelist in duelists_to_pools:
+                duelists_to_pools[drop.duelist].append((card.name, str(drop.duel_rank.name), drop.probability, id in in_logic_cards))
+
+    return {(key.id, str(key)): value for key, value in duelists_to_pools.items()}

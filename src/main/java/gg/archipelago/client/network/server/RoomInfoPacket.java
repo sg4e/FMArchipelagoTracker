@@ -1,14 +1,16 @@
 package gg.archipelago.client.network.server;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gson.annotations.SerializedName;
+
 import gg.archipelago.client.network.APPacket;
 import gg.archipelago.client.network.APPacketType;
 import gg.archipelago.client.network.RemainingMode;
 import gg.archipelago.client.parts.NetworkPlayer;
 import gg.archipelago.client.parts.Version;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class RoomInfoPacket extends APPacket {
 
@@ -36,7 +38,7 @@ public class RoomInfoPacket extends APPacket {
     @SerializedName("games")
     public ArrayList<String> games = new ArrayList<>();
     @SerializedName("datapackage_versions")
-    public HashMap<String, Integer> datapackageVersions = new HashMap<>();
+    public Map<String, Integer> datapackageVersions = new HashMap<>();
 
     @SerializedName("seed_name")
     public String seedName;
@@ -45,7 +47,7 @@ public class RoomInfoPacket extends APPacket {
     public double time;
 
     @SerializedName("permissions")
-    public HashMap<String, Integer> permissions;
+    public Map<String, Integer> permissions;
 
     public RoomInfoPacket() {
         super(APPacketType.RoomInfo);

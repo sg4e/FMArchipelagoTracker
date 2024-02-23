@@ -74,7 +74,7 @@ public class LocationManager {
         this.missingLocations.removeAll(newLocations);
     }
 
-    public void setMissingLocations(HashSet<Long> missingLocations) {
+    public void setMissingLocations(Set<Long> missingLocations) {
         this.missingLocations = missingLocations;
     }
 }

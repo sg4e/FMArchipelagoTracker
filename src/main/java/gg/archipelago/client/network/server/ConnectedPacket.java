@@ -1,12 +1,14 @@
 package gg.archipelago.client.network.server;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gson.annotations.SerializedName;
+
 import gg.archipelago.client.network.APPacket;
 import gg.archipelago.client.network.APPacketType;
 import gg.archipelago.client.parts.NetworkPlayer;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 public class ConnectedPacket extends APPacket {
 
@@ -17,9 +19,9 @@ public class ConnectedPacket extends APPacket {
     @SerializedName("players")
     public ArrayList<NetworkPlayer> players;
     @SerializedName("missing_locations")
-    public HashSet<Long> missingLocations = new HashSet<>();
+    public Set<Long> missingLocations = new HashSet<>();
     @SerializedName("checked_locations")
-    public HashSet<Long> checkedLocations = new HashSet<>();
+    public Set<Long> checkedLocations = new HashSet<>();
 
     public ConnectedPacket() {
         super(APPacketType.Connected);

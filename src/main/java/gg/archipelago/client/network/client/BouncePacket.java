@@ -1,12 +1,13 @@
 package gg.archipelago.client.network.client;
 
+import java.util.Map;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
 import gg.archipelago.client.events.Event;
 import gg.archipelago.client.network.APPacket;
 import gg.archipelago.client.network.APPacketType;
-
-import java.util.HashMap;
 
 public class BouncePacket extends APPacket implements Event {
 
@@ -24,17 +25,17 @@ public class BouncePacket extends APPacket implements Event {
 
     @Expose
     @SerializedName("data")
-    private HashMap<String, Object> data;
+    private Map<String, Object> data;
 
     public BouncePacket() {
         super(APPacketType.Bounce);
     }
 
-    public HashMap<String, Object> getData() {
+    public Map<String, Object> getData() {
         return data;
     }
 
-    public void setData(HashMap<String, Object> data) {
+    public void setData(Map<String, Object> data) {
         this.data = data;
     }
 }

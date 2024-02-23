@@ -1,9 +1,10 @@
 package gg.archipelago.client.parts;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.annotations.SerializedName;
 
 public class Game implements Serializable {
 
@@ -14,8 +15,8 @@ public class Game implements Serializable {
     public String hash;
 
     @SerializedName("item_name_to_id")
-    public HashMap<String,Long> itemNameToId = new HashMap<>();
+    public Map<String,Long> itemNameToId = new HashMap<>();
 
     @SerializedName("location_name_to_id")
-    public HashMap<String,Long> locationNameToId = new HashMap<>();
+    public Map<String,Long> locationNameToId = new HashMap<>();
 }

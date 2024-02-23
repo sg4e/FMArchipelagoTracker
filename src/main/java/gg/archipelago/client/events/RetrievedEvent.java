@@ -1,20 +1,20 @@
 package gg.archipelago.client.events;
 
+import java.lang.reflect.Type;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.bind.JsonTreeReader;
 
-import java.lang.reflect.Type;
-import java.util.HashMap;
-
 public class RetrievedEvent implements Event {
 
-    public HashMap<String, Object> data;
+    public Map<String, Object> data;
     private final int requestID;
     private final JsonObject jsonValue;
 
-    public RetrievedEvent(HashMap<String, Object> keys, JsonObject jsonValue, int requestID) {
+    public RetrievedEvent(Map<String, Object> keys, JsonObject jsonValue, int requestID) {
         data = keys;
         this.jsonValue = jsonValue;
         this.requestID = requestID;

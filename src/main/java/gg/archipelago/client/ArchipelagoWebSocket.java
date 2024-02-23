@@ -1,12 +1,37 @@
 package gg.archipelago.client;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+
+import javax.net.ssl.SSLException;
+
+import org.apache.hc.core5.net.URIBuilder;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
 import gg.archipelago.client.Print.APPrint;
 import gg.archipelago.client.Print.APPrintType;
-import gg.archipelago.client.events.*;
+import gg.archipelago.client.events.BouncedEvent;
+import gg.archipelago.client.events.CheckedLocationsEvent;
+import gg.archipelago.client.events.ConnectionAttemptEvent;
+import gg.archipelago.client.events.ConnectionResultEvent;
+import gg.archipelago.client.events.InvalidPacketEvent;
+import gg.archipelago.client.events.LocationInfoEvent;
+import gg.archipelago.client.events.RetrievedEvent;
+import gg.archipelago.client.events.SetReplyEvent;
 import gg.archipelago.client.helper.DeathLink;
 import gg.archipelago.client.network.APPacket;
 import gg.archipelago.client.network.ConnectionResult;
@@ -14,19 +39,20 @@ import gg.archipelago.client.network.client.ConnectPacket;
 import gg.archipelago.client.network.client.GetDataPackagePacket;
 import gg.archipelago.client.network.client.LocationScouts;
 import gg.archipelago.client.network.client.SayPacket;
-import gg.archipelago.client.network.server.*;
+import gg.archipelago.client.network.server.BouncedPacket;
+import gg.archipelago.client.network.server.ConnectedPacket;
+import gg.archipelago.client.network.server.ConnectionRefusedPacket;
+import gg.archipelago.client.network.server.InvalidPacket;
+import gg.archipelago.client.network.server.LocationInfoPacket;
+import gg.archipelago.client.network.server.PrintPacket;
+import gg.archipelago.client.network.server.ReceivedItemsPacket;
+import gg.archipelago.client.network.server.RetrievedPacket;
+import gg.archipelago.client.network.server.RoomInfoPacket;
+import gg.archipelago.client.network.server.RoomUpdatePacket;
+import gg.archipelago.client.network.server.SetReplyPacket;
 import gg.archipelago.client.parts.DataPackage;
 import gg.archipelago.client.parts.NetworkItem;
 import gg.archipelago.client.parts.NetworkPlayer;
-import org.apache.hc.core5.net.URIBuilder;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-
-import javax.net.ssl.SSLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.logging.Level;
 
 public class ArchipelagoWebSocket extends WebSocketClient {
 
@@ -62,7 +88,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         try {
-            LOGGER.fine("Got Packet: " + message);
+            LOGGER.finest("Got Packet: " + message);
             JsonElement element = JsonParser.parseString(message);
 
             JsonArray cmdList = element.getAsJsonArray();
@@ -74,6 +100,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
 
 
                 //check if room info packet
+                LOGGER.fine(String.format("Received %s packet", cmd.getCmd()));
                 switch (cmd.getCmd()) {
                     case RoomInfo:
                         RoomInfoPacket roomInfo = gson.fromJson(packet, RoomInfoPacket.class);
@@ -108,8 +135,6 @@ public class ArchipelagoWebSocket extends WebSocketClient {
                         archipelagoClient.getRoomInfo().networkPlayers.add(new NetworkPlayer(connectedPacket.team, 0, "Archipelago"));
                         archipelagoClient.setAlias(archipelagoClient.getRoomInfo().getPlayer(connectedPacket.team, connectedPacket.slot).alias);
 
-                        slotData = packet.getAsJsonObject().get("slot_data");
-
                         ConnectionAttemptEvent attemptConnectionEvent = new ConnectionAttemptEvent(connectedPacket.team, connectedPacket.slot, seedName, slotData);
                         archipelagoClient.getEventManager().callEvent(attemptConnectionEvent);
 
@@ -122,6 +147,8 @@ public class ArchipelagoWebSocket extends WebSocketClient {
 
                             ConnectionResultEvent connectionResultEvent = new ConnectionResultEvent(ConnectionResult.Success, connectedPacket.team, connectedPacket.slot, seedName, slotData);
                             archipelagoClient.getEventManager().callEvent(connectionResultEvent);
+                            slotData = packet.getAsJsonObject().get("slot_data");
+                            archipelagoClient.onSlotData(slotData);
                         } else {
                             this.close();
                             //close out of this loop because we are no longer interested in further commands from the server.
@@ -145,25 +172,27 @@ public class ArchipelagoWebSocket extends WebSocketClient {
                         }
                         break;
                     case PrintJSON:
-                        LOGGER.finest("PrintJSON packet");
-                        APPrint print = gson.fromJson(packet, APPrint.class);
+                        // APPrint print = gson.fromJson(packet, APPrint.class);
+                        // StringBuilder sb = new StringBuilder();
 
-                        //filter though all player IDs and replace id with alias.
-                        for (int p = 0; print.parts.length > p; ++p) {
-                            if (print.parts[p].type == APPrintType.PLAYER_ID) {
-                                int playerID = Integer.parseInt((print.parts[p].text));
-                                NetworkPlayer player = archipelagoClient.getRoomInfo().getPlayer(archipelagoClient.getTeam(), playerID);
+                        // //filter though all player IDs and replace id with alias.
+                        // for (int p = 0; print.parts.length > p; ++p) {
+                        //     if (print.parts[p].type == APPrintType.PLAYER_ID) {
+                        //         int playerID = Integer.parseInt((print.parts[p].text));
+                        //         NetworkPlayer player = archipelagoClient.getRoomInfo().getPlayer(archipelagoClient.getTeam(), playerID);
 
-                                print.parts[p].text = player.alias;
-                            } else if (print.parts[p].type == APPrintType.ITEM_ID) {
-                                int itemID = Integer.parseInt((print.parts[p].text));
-                                print.parts[p].text = archipelagoClient.getDataPackage().getItem(itemID);
-                            } else if (print.parts[p].type == APPrintType.LOCATION_ID) {
-                                int locationID = Integer.parseInt((print.parts[p].text));
-                                print.parts[p].text = archipelagoClient.getDataPackage().getLocation(locationID);
-                            }
-                        }
-                        archipelagoClient.onPrintJson(print, print.type, print.receiving, print.item);
+                        //         print.parts[p].text = player.alias;
+                        //     } else if (print.parts[p].type == APPrintType.ITEM_ID) {
+                        //         int itemID = Integer.parseInt((print.parts[p].text));
+                        //         print.parts[p].text = archipelagoClient.getDataPackage().getItem(itemID);
+                        //     } else if (print.parts[p].type == APPrintType.LOCATION_ID) {
+                        //         int locationID = Integer.parseInt((print.parts[p].text));
+                        //         print.parts[p].text = archipelagoClient.getDataPackage().getLocation(locationID);
+                        //     }
+                        //     sb.append(print.parts[p].text);
+                        // }
+                        // LOGGER.fine("PrintJSON: " + sb);
+                        // archipelagoClient.onPrintJson(print, print.type, print.receiving, print.item);
                         break;
                     case RoomUpdate:
                         RoomUpdatePacket updatePacket = gson.fromJson(packet, RoomUpdatePacket.class);
@@ -173,6 +202,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
                         ReceivedItemsPacket items = gson.fromJson(packet, ReceivedItemsPacket.class);
                         ItemManager itemManager = archipelagoClient.getItemManager();
                         itemManager.receiveItems(items.items, items.index);
+                        archipelagoClient.onReceivedItems();
                         break;
                     case Bounced:
                         BouncedPacket bounced = gson.fromJson(packet, BouncedPacket.class);
@@ -201,12 +231,13 @@ public class ArchipelagoWebSocket extends WebSocketClient {
                     case InvalidPacket:
                         InvalidPacket invalidPacket = gson.fromJson(packet, InvalidPacket.class);
                         archipelagoClient.getEventManager().callEvent(new InvalidPacketEvent(invalidPacket.type, invalidPacket.Original_cmd, invalidPacket.text));
+                        LOGGER.log(Level.INFO, "Invalid packet received: " + packet);
                     default:
 
                 }
             }
         } catch (Exception e) {
-            LOGGER.warning("Error proccessing incoming packet: ");
+            LOGGER.log(Level.WARNING, "Error proccessing incoming packet: ");
             e.printStackTrace();
         }
     }
@@ -223,9 +254,10 @@ public class ArchipelagoWebSocket extends WebSocketClient {
         archipelagoClient.setAlias(archipelagoClient.getRoomInfo().getPlayer(archipelagoClient.getTeam(), archipelagoClient.getSlot()).alias);
 
         archipelagoClient.getEventManager().callEvent(new CheckedLocationsEvent(updateRoomPacket.checkedLocations));
+        archipelagoClient.onLocationsUpdate();
     }
 
-    private void checkDataPackage(HashMap<String, Integer> versions) {
+    private void checkDataPackage(Map<String, Integer> versions) {
         HashSet<String> exclusions = new HashSet<>();
         for (Map.Entry<String, Integer> game : versions.entrySet()) {
             //the game does NOT need updating add it to the exclusion list.
@@ -259,7 +291,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
 
     @Override
     public void onClose(int code, String wsReason, boolean remote) {
-        LOGGER.fine(String.format("Connection closed by %s Code: %s Reason: %s", (remote ? "remote peer" : "us"), code, wsReason));
+        LOGGER.log(Level.WARNING, String.format("Connection closed by %s Code: %s Reason: %s", (remote ? "remote peer" : "us"), code, wsReason));
         String reason = (wsReason.isEmpty()) ? "Connection refused by the Archipelago server." : wsReason;
         if (code == -1) {
             reconnectTimer.cancel();
@@ -309,7 +341,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
     public void onError(Exception ex) {
         if (ex instanceof SSLException) return;
         archipelagoClient.onError(ex);
-        LOGGER.log(Level.WARNING, "Error in websocket connection");
+        LOGGER.log(Level.SEVERE, "Error in websocket connection", ex);
         ex.printStackTrace();
     }
 

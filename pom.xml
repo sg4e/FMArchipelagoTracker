@@ -1,0 +1,206 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>moe.maika</groupId>
+    <artifactId>fmaptracker</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>FMAchipelagoTracker</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
+        <javafx.version>21</javafx.version>
+        <javafx.plugin.version>0.0.8</javafx.plugin.version>
+        <gluonfx.plugin.version>1.0.22</gluonfx.plugin.version>
+        <main.class>moe.maika.fmaptracker.Tracker</main.class>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+        <groupId>org.java-websocket</groupId>
+        <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <version>5.2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>2.11.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk18on</artifactId>
+            <version>1.77</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>polyglot</artifactId>
+            <version>23.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python-community</artifactId>
+            <version>23.1.2</version>
+            <!-- <scope>runtime</scope> -->
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>${javafx.plugin.version}</version>
+                <configuration>
+                    <mainClass>${main.class}</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.gluonhq</groupId>
+                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>${gluonfx.plugin.version}</version>
+                <configuration>
+                    <target>${gluonfx.target}</target>
+                    <mainClass>${main.class}</mainClass>
+                    <!-- this is required because of the following linker error -->
+                    <!-- pythonjni.lib(pythonjni.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in python-native.lib(python-native.dll); second definition ignored -->
+                    <linkerArgs>/FORCE</linkerArgs>
+                    <!-- <bundlesList>
+                        <list>moe.maika.fmaptracker</list>
+                    </bundlesList> -->
+                    <reflectionList>
+                        <list>moe.maika.fmaptracker.TrackerController</list>
+                        <list>moe.maika.fmaptracker.ConnectController</list>
+                        <list>javafx.scene.control.ComboBox</list>
+                        <list>javafx.scene.layout.GridPane</list>
+                        <!-- All AP classes. I don't know which ones are instantiated, so add them all -->
+                        <list>gg.archipelago.client.ArchipelagoClient</list>
+                        <list>gg.archipelago.client.ArchipelagoWebSocket</list>
+                        <list>gg.archipelago.client.ClientStatus</list>
+                        <list>gg.archipelago.client.EventManager</list>
+                        <list>gg.archipelago.client.LocationManager</list>
+                        <list>gg.archipelago.client.Print.APPrint</list>
+                        <list>gg.archipelago.client.Print.APPrintColor</list>
+                        <list>gg.archipelago.client.Print.APPrintPart</list>
+                        <list>gg.archipelago.client.Print.APPrintType</list>
+                        <list>gg.archipelago.client.events.ArchipelagoEventListener</list>
+                        <list>gg.archipelago.client.events.Event</list>
+                        <list>gg.archipelago.client.events.BouncedEvent</list>
+                        <list>gg.archipelago.client.events.InvalidPacketEvent</list>
+                        <list>gg.archipelago.client.events.CheckedLocationsEvent</list>
+                        <list>gg.archipelago.client.events.LocationInfoEvent</list>
+                        <list>gg.archipelago.client.events.ConnectionAttemptEvent</list>
+                        <list>gg.archipelago.client.events.ReceiveItemEvent</list>
+                        <list>gg.archipelago.client.events.ConnectionResultEvent</list>
+                        <list>gg.archipelago.client.events.RetrievedEvent</list>
+                        <list>gg.archipelago.client.events.DeathLinkEvent</list>
+                        <list>gg.archipelago.client.helper.DeathLink</list>
+                        <list>gg.archipelago.client.network.APPacket</list>
+                        <list>gg.archipelago.client.network.APPacketType</list>
+                        <list>gg.archipelago.client.network.APPacket</list>
+                        <list>gg.archipelago.client.network.ConnectionResult</list>
+                        <list>gg.archipelago.client.network.Permission</list>
+                        <list>gg.archipelago.client.network.client.BouncePacket</list>
+                        <list>gg.archipelago.client.network.client.ConnectPacket</list>
+                        <list>gg.archipelago.client.network.client.GetDataPackagePacket</list>
+                        <list>gg.archipelago.client.network.client.GetPacket</list>
+                        <list>gg.archipelago.client.network.client.LocationChecks</list>
+                        <list>gg.archipelago.client.network.client.LocationScouts</list>
+                        <list>gg.archipelago.client.network.client.SayPacket</list>
+                        <list>gg.archipelago.client.network.client.SetNotifyPacket</list>
+                        <list>gg.archipelago.client.network.client.SetPacket</list>
+                        <list>gg.archipelago.client.network.client.StatusUpdatePacket</list>
+                        <list>gg.archipelago.client.network.client.SyncPacket</list>
+                        <list>gg.archipelago.client.network.server.BouncedPacket</list>
+                        <list>gg.archipelago.client.network.server.ConnectUpdatePacket</list>
+                        <list>gg.archipelago.client.network.server.ConnectionRefusedPacket</list>
+                        <list>gg.archipelago.client.network.server.ConnectedPacket</list>
+                        <list>gg.archipelago.client.network.server.InvalidPacket</list>
+                        <list>gg.archipelago.client.network.server.JsonPrintPacket</list>
+                        <list>gg.archipelago.client.network.server.LocationInfoPacket</list>
+                        <list>gg.archipelago.client.network.server.PrintPacket</list>
+                        <list>gg.archipelago.client.network.server.ReceivedItemsPacket</list>
+                        <list>gg.archipelago.client.network.server.RetrievedPacket</list>
+                        <list>gg.archipelago.client.network.server.RoomInfoPacket</list>
+                        <list>gg.archipelago.client.network.server.RoomUpdatePacket</list>
+                        <list>gg.archipelago.client.network.server.SetReplyPacket</list>
+                        <list>gg.archipelago.client.parts.DataPackage</list>
+                        <list>gg.archipelago.client.parts.Game</list>
+                        <list>gg.archipelago.client.parts.NetworkItem</list>
+                        <list>gg.archipelago.client.parts.NetworkPlayer</list>
+                        <list>gg.archipelago.client.parts.Version</list>
+                    </reflectionList>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>android</id>
+            <properties>
+                <gluonfx.target>android</gluonfx.target>
+            </properties>
+        </profile>
+        <profile>
+            <id>ios</id>
+            <properties>
+                <gluonfx.target>ios</gluonfx.target>
+            </properties>
+        </profile>
+    </profiles>
+</project>

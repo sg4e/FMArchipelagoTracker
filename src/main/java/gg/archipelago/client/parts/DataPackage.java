@@ -10,15 +10,15 @@ public class DataPackage implements Serializable {
 
     @Expose
     @SerializedName("games")
-    HashMap<String, Game> games = new HashMap<>();
+    Map<String, Game> games = new HashMap<>();
 
     @Expose
     @SerializedName("version")
     int version = -1;
 
-    HashMap<Long, String> itemIdToName = new HashMap<>();
+    Map<Long, String> itemIdToName = new HashMap<>();
 
-    HashMap<Long, String> locationIdToName = new HashMap<>();
+    Map<Long, String> locationIdToName = new HashMap<>();
 
     public String uuid = UUID.randomUUID().toString();
 
@@ -52,11 +52,11 @@ public class DataPackage implements Serializable {
         return versions;
     }
 
-    public HashMap<String, Game> getGames() {
+    public Map<String, Game> getGames() {
         return games;
     }
 
-    public HashMap<Long, String> getItems() {
+    public Map<Long, String> getItems() {
         if(itemIdToName.isEmpty()) {
             for (Map.Entry<String, Game> gameEntry : games.entrySet()) {
                 for (Map.Entry<String, Long> items : gameEntry.getValue().itemNameToId.entrySet()) {
@@ -67,7 +67,7 @@ public class DataPackage implements Serializable {
         return itemIdToName;
     }
 
-    public HashMap<Long, String> getItemsForGame(String game) {
+    public Map<Long, String> getItemsForGame(String game) {
         HashMap<Long, String> ret = new HashMap<>();
         for (Map.Entry<String, Game> gameEntry : games.entrySet()) {
             if(!gameEntry.getKey().equals(game)) continue;
@@ -78,7 +78,7 @@ public class DataPackage implements Serializable {
         return ret;
     }
 
-    public HashMap<Long, String> getLocations() {
+    public Map<Long, String> getLocations() {
         if(locationIdToName.isEmpty()) {
             for (Map.Entry<String, Game> gameEntry : games.entrySet()) {
                 for (Map.Entry<String, Long> locations : gameEntry.getValue().locationNameToId.entrySet()) {
@@ -89,7 +89,7 @@ public class DataPackage implements Serializable {
         return itemIdToName;
     }
 
-    public HashMap<Long, String> getLocationsForGame(String game) {
+    public Map<Long, String> getLocationsForGame(String game) {
         HashMap<Long, String> ret = new HashMap<>();
         for (Map.Entry<String, Game> gameEntry : games.entrySet()) {
             if(!gameEntry.getKey().equals(game)) continue;

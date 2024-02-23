@@ -1,25 +1,25 @@
 package gg.archipelago.client.events;
 
-import com.google.gson.annotations.SerializedName;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import com.google.gson.annotations.SerializedName;
 
 public class BouncedEvent implements Event {
 
     @SerializedName("games")
-    public HashSet<String> games;
+    public Set<String> games;
 
     @SerializedName("slots")
-    public HashSet<Integer> slots;
+    public Set<Integer> slots;
 
     @SerializedName("tags")
-    public HashSet<String> tags;
+    public Set<String> tags;
 
     @SerializedName("data")
-    private HashMap<String, Object> data;
+    private Map<String, Object> data;
 
-    public BouncedEvent(HashSet<String> games, HashSet<String> tags, HashSet<Integer> slots, HashMap<String, Object> data) {
+    public BouncedEvent(Set<String> games, Set<String> tags, Set<Integer> slots, Map<String, Object> data) {
         this.games = games;
         this.tags = tags;
         this.slots = slots;

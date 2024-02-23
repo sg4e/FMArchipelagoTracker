@@ -42,15 +42,15 @@ public abstract class ArchipelagoClient {
     private final ItemManager itemManager;
     private final EventManager eventManager;
 
-    public static final Version protocolVersion = new Version(0, 3, 7);
+    public static final Version protocolVersion = new Version(0, 4, 4);
 
     private int team;
     private int slot;
-    private String name = "Name not set";
-    private String game = "Game not set";
+    private String name = "";
+    private String game = "";
     private String alias;
     private Set<String> tags = new HashSet<>();
-    private int itemsHandlingFlags = 0b000;
+    private int itemsHandlingFlags = 0b111;
 
     public ArchipelagoClient() {
         loadDataPackage();
@@ -188,12 +188,6 @@ public abstract class ArchipelagoClient {
         return slot;
     }
 
-    public JsonElement getSlotData() {
-        if(archipelagoWebSocket == null)
-            return null;
-        return archipelagoWebSocket.getSlotData();
-    }
-
     public RoomInfoPacket getRoomInfo() {
         return roomInfo;
     }
@@ -247,7 +241,7 @@ public abstract class ArchipelagoClient {
     }
 
     public void scoutLocations(ArrayList<Long> locationIDs) {
-        HashMap<Long, String> locations = dataPackage.getLocationsForGame(game);
+        Map<Long, String> locations = dataPackage.getLocationsForGame(game);
         locationIDs.removeIf( location -> !locations.containsKey(location));
         archipelagoWebSocket.scoutLocation(locationIDs);
     }
@@ -259,6 +253,12 @@ public abstract class ArchipelagoClient {
     public abstract void onError(Exception ex);
 
     public abstract void onClose(String reason, int attemptingReconnect);
+
+    public abstract void onSlotData(JsonElement data);
+
+    public abstract void onReceivedItems();
+
+    public abstract void onLocationsUpdate();
 
     public DataPackage getDataPackage() {
         return dataPackage;
