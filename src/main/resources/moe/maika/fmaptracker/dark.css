@@ -1,0 +1,48 @@
+/* dark.css */
+
+.root {
+    -fx-background-color: #303030; /* Dark background color */
+    -fx-text-fill: #ffffff; /* Light text color */
+}
+
+.label {
+    -fx-text-fill: #ffffff; /* Light text color */
+}
+
+.combo-box {
+    -fx-background-color: #505050; /* Darker background color for combo box */
+    -fx-text-fill: #ffffff; /* Light text color */
+}
+
+.table-view {
+    -fx-background-color: #505050; /* Darker background color for table view */
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #404040; /* Slightly lighter background color for table column headers */
+}
+
+.table-view .column-header {
+    -fx-text-fill: #ffffff; /* Light text color for table column headers */
+}
+
+.table-row-cell {
+    -fx-background-color: #404040; /* Darker background color for table rows */
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #707070; /* Darker background color for selected table rows */
+}
+
+.table-cell {
+    -fx-text-fill: #ffffff; /* Set text color to white for table cells */
+}
+
+.button {
+    -fx-background-color: #808080; /* Darker background color for buttons */
+    -fx-text-fill: #ffffff; /* Light text color */
+}
+
+.button:hover {
+    -fx-background-color: #909090; /* Darker background color for buttons on hover */
+}
