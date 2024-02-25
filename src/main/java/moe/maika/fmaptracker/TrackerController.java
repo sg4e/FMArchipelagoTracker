@@ -143,7 +143,13 @@ public class TrackerController {
         farmList.sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
         duelistBox.getItems().setAll(farmList);
         duelistBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            dropTable.getItems().setAll(farms.get(newVal));
+            // TODO why can this be null?
+            if(newVal == null) {
+                log.warning("Farm was null when setting selection model");
+            }
+            else {
+                dropTable.getItems().setAll(farms.get(newVal));
+            }
         });
     }
 
@@ -473,8 +479,11 @@ public class TrackerController {
         }
 
         @Override
-        public void onPrintJson(APPrint apPrint, String type, int sending, NetworkItem receiving) {
-            // do nothing
+        public void onPrintJson(APPrint apPrint, String type, int sending, NetworkItem item) {
+            if(item != null && item.playerID == getSlot()) {
+                getLocationManager().markAsChecked(item.locationID);
+                updateTracker();
+            }
         }
 
         @Override

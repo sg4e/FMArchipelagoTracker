@@ -88,7 +88,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         try {
-            LOGGER.finest("Got Packet: " + message);
+            LOGGER.finest(() -> "Got Packet: " + message);
             JsonElement element = JsonParser.parseString(message);
 
             JsonArray cmdList = element.getAsJsonArray();
@@ -172,27 +172,27 @@ public class ArchipelagoWebSocket extends WebSocketClient {
                         }
                         break;
                     case PrintJSON:
-                        // APPrint print = gson.fromJson(packet, APPrint.class);
-                        // StringBuilder sb = new StringBuilder();
+                        APPrint print = gson.fromJson(packet, APPrint.class);
+                        StringBuilder sb = new StringBuilder();
 
-                        // //filter though all player IDs and replace id with alias.
-                        // for (int p = 0; print.parts.length > p; ++p) {
-                        //     if (print.parts[p].type == APPrintType.PLAYER_ID) {
-                        //         int playerID = Integer.parseInt((print.parts[p].text));
-                        //         NetworkPlayer player = archipelagoClient.getRoomInfo().getPlayer(archipelagoClient.getTeam(), playerID);
+                        //filter though all player IDs and replace id with alias.
+                        for (int p = 0; print.parts.length > p; ++p) {
+                            if (print.parts[p].type == APPrintType.PLAYER_ID) {
+                                int playerID = Integer.parseInt((print.parts[p].text));
+                                NetworkPlayer player = archipelagoClient.getRoomInfo().getPlayer(archipelagoClient.getTeam(), playerID);
 
-                        //         print.parts[p].text = player.alias;
-                        //     } else if (print.parts[p].type == APPrintType.ITEM_ID) {
-                        //         int itemID = Integer.parseInt((print.parts[p].text));
-                        //         print.parts[p].text = archipelagoClient.getDataPackage().getItem(itemID);
-                        //     } else if (print.parts[p].type == APPrintType.LOCATION_ID) {
-                        //         int locationID = Integer.parseInt((print.parts[p].text));
-                        //         print.parts[p].text = archipelagoClient.getDataPackage().getLocation(locationID);
-                        //     }
-                        //     sb.append(print.parts[p].text);
-                        // }
-                        // LOGGER.fine("PrintJSON: " + sb);
-                        // archipelagoClient.onPrintJson(print, print.type, print.receiving, print.item);
+                                print.parts[p].text = player.alias;
+                            } else if (print.parts[p].type == APPrintType.ITEM_ID) {
+                                long itemID = Long.parseLong((print.parts[p].text));
+                                print.parts[p].text = archipelagoClient.getDataPackage().getItem(itemID);
+                            } else if (print.parts[p].type == APPrintType.LOCATION_ID) {
+                                long locationID = Long.parseLong((print.parts[p].text));
+                                print.parts[p].text = archipelagoClient.getDataPackage().getLocation(locationID);
+                            }
+                            sb.append(print.parts[p].text);
+                        }
+                        LOGGER.fine("PrintJSON: " + sb);
+                        archipelagoClient.onPrintJson(print, print.type, print.receiving, print.item);
                         break;
                     case RoomUpdate:
                         RoomUpdatePacket updatePacket = gson.fromJson(packet, RoomUpdatePacket.class);

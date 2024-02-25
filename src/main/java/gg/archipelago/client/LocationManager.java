@@ -21,6 +21,11 @@ public class LocationManager {
         return checkLocations(new ArrayList<Long>(1) {{add(id);}});
     }
 
+    public boolean markAsChecked(long id) {
+        missingLocations.remove(id);
+        return checkedLocations.add(id);
+    }
+
     public boolean checkLocations(Collection<Long> ids) {
         ids.removeIf( location -> !missingLocations.contains(location));
         checkedLocations.addAll(ids);
