@@ -100,6 +100,7 @@ public class TrackerController {
 
     private static final String DEFAULT_AP_INSTALL_LOCATION = "C:\\ProgramData\\Archipelago";
     private static final String SETTINGS_FOLDER = ".FMAPTracker";
+    private static final long SLEEP_BETWEEN_UI_UPDATE_MILLIS = 500L;
 
     private Future<Context> pythonInitializer;
     private final ExecutorService executor;
@@ -127,7 +128,12 @@ public class TrackerController {
                 if(object == null) {
                     return null;
                 }
-                return String.format("%s %s: %.2f%%", object.duelist().name(), object.duelRank(), object.totalProbability() / 2048d * 100d);
+                return String.format("%s %s: %.2f%% (Missing: %s Total: %s)",
+                        object.duelist().name(),
+                        object.duelRank(),
+                        object.totalProbability() / 2048d * 100d,
+                        object.missingDrops(),
+                        object.totalDrops());
             }
 
             @Override
@@ -138,7 +144,7 @@ public class TrackerController {
         });
     }
 
-    private void updateFarms(Map<Farm, List<Drop>> farms) {
+    private void updateFarms(Map<Farm, List<Drop>> farms, Map<String, List<Farm>> topFarmsForDuelRank) {
         List<Farm> farmList = new ArrayList<>(farms.keySet());
         farmList.sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
         duelistBox.getItems().setAll(farmList);
@@ -562,19 +568,23 @@ public class TrackerController {
 
     private static record Drop(String cardName, String duelRank, int probability, boolean inLogic) {}
 
-    private static record Farm(Duelist duelist, String duelRank, int totalProbability) {}
+    private static record Farm(Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
+
+    private static record Pool(Duelist duelist, String duelRank) {}
 
     private class TrackerUpdater extends Thread {
 
         private final String slotData;
         private Context ctx;
         private volatile boolean cancelled;
+        private final Map<Pool, Integer> poolToTotalCardCount;
 
         public TrackerUpdater(String slotData) {
             super("TrackerUpdater");
             setDaemon(true);
             this.slotData = slotData;
             cancelled = false;
+            poolToTotalCardCount = new HashMap<>();
         }
 
         public void cancel() {
@@ -593,6 +603,14 @@ public class TrackerController {
                 executor.shutdown();
                 ctx.getBindings("python").putMember("slot_data", slotData);
                 ctx.eval("python", "initialize(slot_data)");
+                // typing.Dict[typing.Tuple[Duelist, str], int]: (duelist, duel_rank) -> total_card_locations
+                Map<Value, Integer> poolCardsDictValue = ctx.eval("python", "get_total_cards_per_farm()")
+                        .as(new TypeLiteral<Map<Value, Integer>>() {});
+                for(Map.Entry<Value, Integer> entry : poolCardsDictValue.entrySet()) {
+                    Value duelistValue = entry.getKey().getArrayElement(0);
+                    Duelist duelist = new Duelist(duelistValue.getMember("id").asInt(), duelistValue.getMember("_name").asString());
+                    poolToTotalCardCount.put(new Pool(duelist, entry.getKey().getArrayElement(1).asString()), entry.getValue());
+                }
             }
             catch(Exception e) {
                 log.log(Level.SEVERE, "Error initializing Python VM", e);
@@ -624,11 +642,23 @@ public class TrackerController {
                         Map<String, List<Drop>> duelRankToDrops = entry.getValue().stream().collect(
                                 Collectors.groupingBy(Drop::duelRank));
                         for(Map.Entry<String, List<Drop>> duelRankEntry : duelRankToDrops.entrySet()) {
-                            Farm farm = new Farm(duelist, duelRankEntry.getKey(), duelRankEntry.getValue().stream().mapToInt(Drop::probability).sum());
+                            Pool pool = new Pool(duelist, duelRankEntry.getKey());
+                            int totalCardCount = poolToTotalCardCount.get(pool);
+                            Farm farm = new Farm(duelist,
+                                    duelRankEntry.getKey(),
+                                    duelRankEntry.getValue().stream().mapToInt(Drop::probability).sum(),
+                                    (int)duelRankEntry.getValue().stream().count(),
+                                    totalCardCount);
                             farms.put(farm, duelRankEntry.getValue());
                         }
                     }
-                    Platform.runLater(() -> updateFarms(farms));
+                    Map<String, List<Farm>> topFarmsForDuelRank = farms.keySet().stream().collect(
+                            Collectors.groupingBy(Farm::duelRank));
+                    for(Map.Entry<String, List<Farm>> entry : topFarmsForDuelRank.entrySet()) {
+                        entry.getValue().sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
+                    }
+                    Platform.runLater(() -> updateFarms(farms, topFarmsForDuelRank));
+                    sleep(SLEEP_BETWEEN_UI_UPDATE_MILLIS);
                 }
                 catch(Exception e) {
                     log.log(Level.WARNING, "Error in tracker updater", e);

@@ -2,11 +2,13 @@ import typing
 import json
 import logic
 import duelists
+import cards
 from duelists import Duelist
 from logic import OptionsProxy
-from utils import Constants
+from utils import Constants, flatten
 from cards import Card
 from drop_pools import Drop
+from collections import Counter
 
 
 duelist_unlock_order: typing.Tuple[typing.Tuple[Duelist, ...]] = tuple()
@@ -20,6 +22,18 @@ def initialize(slot_data_raw: str) -> None:
     duelist_unlock_order = duelists.map_ids_to_duelists(slot_data[Constants.DUELIST_UNLOCK_ORDER_KEY])
     final_6_order = tuple([duelists.ids_to_duelists[i] for i in slot_data[Constants.FINAL_6_ORDER_KEY]])
     options = OptionsProxy(slot_data[Constants.GAME_OPTIONS_KEY])
+
+
+def get_total_cards_per_farm() -> typing.Dict[typing.Tuple[Duelist, str], int]:
+    # (duelist, duel_rank) -> total_card_locations
+    all_drops_with_card_locations: typing.List[Drop] = flatten([
+        c.drop_pool for c in cards.all_cards if c.drop_pool is not None
+    ])
+    totals: typing.Counter[typing.Tuple[str, str]] = Counter()
+    for drop in all_drops_with_card_locations:
+        key: typing.Tuple[Duelist, str] = (drop.duelist, str(drop.duel_rank.name))
+        totals[key] += 1
+    return dict(totals)
 
 
 def get_tracker_info(
