@@ -58,6 +58,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -65,6 +66,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -92,6 +95,11 @@ public class TrackerController {
     private TableColumn<Drop, Integer> probabilityColumn;
     @FXML
     private TableColumn<Drop, String> inLogicColumn;
+    @FXML
+    private GridPane farmPane;
+
+    private FarmController saPowFarm, bcdFarm, saTecFarm;
+    private final Image[] duelistImages;
 
     private ConnectionStatusLabel connectionLabel;
 
@@ -113,6 +121,7 @@ public class TrackerController {
         executor = Executors.newSingleThreadExecutor();
         directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Archipelago Data folder");
+        duelistImages = new Image[40];
     }
 
     @FXML
@@ -142,12 +151,33 @@ public class TrackerController {
                 return null;
             }
         });
+        try {
+            for(int i = 0; i < 40; i++) {
+                duelistImages[i] = new Image(getClass().getResourceAsStream(String.format("duelists/%s.png", i)));
+            }
+            saPowFarm = makeFarmUi("SA POW", 0);
+            bcdFarm = makeFarmUi("BCD", 1);
+            saTecFarm = makeFarmUi("SA TEC", 2);
+        }
+        catch(IOException e) {
+            log.log(Level.SEVERE, "Failed to make farm UI", e);
+        }
     }
 
-    private void updateFarms(Map<Farm, List<Drop>> farms, Map<String, List<Farm>> topFarmsForDuelRank) {
-        List<Farm> farmList = new ArrayList<>(farms.keySet());
-        farmList.sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
-        duelistBox.getItems().setAll(farmList);
+    private FarmController makeFarmUi(String label, int index) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("farm.fxml"));
+        farmPane.add(loader.load(), index, 0);
+        FarmController controller = loader.getController();
+        controller.setDuelRank(label);
+        controller.setDuelistImage(duelistImages[0]); // build deck image
+        return controller;
+    }
+
+    private void updateFarms(Map<Farm, List<Drop>> farms, List<Farm> sortedFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
+        saPowFarm.updateTopFarms(topFarmsForDuelRank.get("SAPOW"), duelistImages);
+        bcdFarm.updateTopFarms(topFarmsForDuelRank.get("BCD"), duelistImages);
+        saTecFarm.updateTopFarms(topFarmsForDuelRank.get("SATEC"), duelistImages);
+        duelistBox.getItems().setAll(sortedFarmList);
         duelistBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             // TODO why can this be null?
             if(newVal == null) {
@@ -564,11 +594,11 @@ public class TrackerController {
         }
     }
 
-    private static record Duelist(int id, String name) {}
+    public static record Duelist(int id, String name) {}
 
     private static record Drop(String cardName, String duelRank, int probability, boolean inLogic) {}
 
-    private static record Farm(Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
+    public static record Farm(Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
 
     private static record Pool(Duelist duelist, String duelRank) {}
 
@@ -657,7 +687,9 @@ public class TrackerController {
                     for(Map.Entry<String, List<Farm>> entry : topFarmsForDuelRank.entrySet()) {
                         entry.getValue().sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
                     }
-                    Platform.runLater(() -> updateFarms(farms, topFarmsForDuelRank));
+                    List<Farm> sortedFarmList = new ArrayList<>(farms.keySet());
+                    sortedFarmList.sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
+                    Platform.runLater(() -> updateFarms(farms, sortedFarmList, topFarmsForDuelRank));
                     sleep(SLEEP_BETWEEN_UI_UPDATE_MILLIS);
                 }
                 catch(Exception e) {

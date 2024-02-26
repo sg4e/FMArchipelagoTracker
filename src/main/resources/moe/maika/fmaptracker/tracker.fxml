@@ -6,7 +6,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="moe.maika.fmaptracker.TrackerController">
@@ -25,6 +28,19 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </HBox>
+      <GridPane fx:id="farmPane" vgap="5.0" VBox.vgrow="ALWAYS">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints vgrow="ALWAYS" />
+        </rowConstraints>
+         <VBox.margin>
+            <Insets left="5.0" right="5.0" />
+         </VBox.margin>
+      </GridPane>
       <ComboBox fx:id="duelistBox" prefHeight="25.0" prefWidth="380.0" />
       <TableView fx:id="dropTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <columns>

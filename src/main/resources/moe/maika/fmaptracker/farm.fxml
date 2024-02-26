@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="moe.maika.fmaptracker.FarmController">
+   <left>
+      <ImageView fx:id="duelistImage" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+   </left>
+   <top>
+      <Label fx:id="topLabel" text="Top Farm" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+   </top>
+   <center>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane VBox.vgrow="ALWAYS">
+               <left>
+                  <Label text="1." BorderPane.alignment="CENTER" />
+               </left>
+               <center>
+                  <Label fx:id="firstFarm" text="No data" BorderPane.alignment="CENTER_LEFT">
+                     <BorderPane.margin>
+                        <Insets left="5.0" />
+                     </BorderPane.margin>
+                  </Label>
+               </center>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </BorderPane>
+            <BorderPane VBox.vgrow="ALWAYS">
+               <left>
+                  <Label text="2." BorderPane.alignment="CENTER" />
+               </left>
+               <center>
+                  <Label fx:id="secondFarm" text="No data" BorderPane.alignment="CENTER_LEFT">
+                     <BorderPane.margin>
+                        <Insets left="5.0" />
+                     </BorderPane.margin>
+                  </Label>
+               </center>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </BorderPane>
+            <BorderPane VBox.vgrow="ALWAYS">
+               <left>
+                  <Label text="3." BorderPane.alignment="CENTER" />
+               </left>
+               <center>
+                  <Label fx:id="thirdFarm" text="No data" BorderPane.alignment="CENTER_LEFT">
+                     <BorderPane.margin>
+                        <Insets left="5.0" />
+                     </BorderPane.margin>
+                  </Label>
+               </center>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </BorderPane>
+         </children>
+         <padding>
+            <Insets left="5.0" />
+         </padding>
+      </VBox>
+   </center>
+</BorderPane>
