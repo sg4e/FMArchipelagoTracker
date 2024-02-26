@@ -109,6 +109,7 @@ public class TrackerController {
     private static final String DEFAULT_AP_INSTALL_LOCATION = "C:\\ProgramData\\Archipelago";
     private static final String SETTINGS_FOLDER = ".FMAPTracker";
     private static final long SLEEP_BETWEEN_UI_UPDATE_MILLIS = 500L;
+    private static final long COALESCE_WORK_UNIT_SLEEP_MILLIS = 100L;
 
     private Future<Context> pythonInitializer;
     private final ExecutorService executor;
@@ -652,9 +653,14 @@ public class TrackerController {
             }
             while(!cancelled) {
                 try {
-                    WorkUnit wu = workQueue.take();
-                    log.fine(() -> String.format("Processing server message from %s: %s missing locations and %s items collected",
-                            wu.getTimestamp(), wu.getMissingLocationIds().size(), wu.getReceivedItemIds().size()));
+                    WorkUnit wu;
+                    do {
+                        WorkUnit localWu = workQueue.take();
+                        log.fine(() -> String.format("Processing server message from %s: %s missing locations and %s items collected",
+                                localWu.getTimestamp(), localWu.getMissingLocationIds().size(), localWu.getReceivedItemIds().size()));
+                        sleep(COALESCE_WORK_UNIT_SLEEP_MILLIS);
+                        wu = localWu;
+                    } while(workQueue.peek() != null);
                     ctx.getBindings("python").putMember("items_received_ids", wu.getReceivedItemIds());
                     ctx.getBindings("python").putMember("missing_locations_ids", wu.getMissingLocationIds());
                     Value value = ctx.eval("python", "get_tracker_info(items_received_ids, missing_locations_ids)");
