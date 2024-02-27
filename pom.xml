@@ -118,7 +118,7 @@
                     <mainClass>${main.class}</mainClass>
                     <!-- this is required because of the following linker error -->
                     <!-- pythonjni.lib(pythonjni.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in python-native.lib(python-native.dll); second definition ignored -->
-                    <linkerArgs>/FORCE</linkerArgs>
+                    <linkerArgs>${gluonfx.linkerArgs}</linkerArgs>
                     <!-- <bundlesList>
                         <list>moe.maika.fmaptracker</list>
                     </bundlesList> -->
@@ -203,6 +203,18 @@
             <id>ios</id>
             <properties>
                 <gluonfx.target>ios</gluonfx.target>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- Set linkerArgs only for Windows -->
+                <gluonfx.linkerArgs>/FORCE</gluonfx.linkerArgs>
             </properties>
         </profile>
     </profiles>
