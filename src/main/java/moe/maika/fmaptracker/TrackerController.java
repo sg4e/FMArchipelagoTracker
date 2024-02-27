@@ -424,7 +424,7 @@ public class TrackerController {
             fileHandler.setLevel(Level.INFO); // Set file handler level
             fileHandler.setFormatter(new SimpleFormatter()); // Set formatter
             // Add file handler to the root logger
-        logger.addHandler(fileHandler);
+            logger.addHandler(fileHandler);
         }
         catch(IOException e) {
             logger.log(Level.SEVERE, "Failed to create file logger", e);
