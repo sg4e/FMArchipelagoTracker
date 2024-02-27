@@ -1,0 +1,18 @@
+diff --git a/sklearn/_build_utils/__init__.py b/sklearn/_build_utils/__init__.py
+index d8206a3..e7b7bf4 100644
+--- a/sklearn/_build_utils/__init__.py
++++ b/sklearn/_build_utils/__init__.py
+@@ -61,10 +61,10 @@ def cythonize_extensions(top_path, config):
+     sklearn._OPENMP_SUPPORTED = check_openmp_support()
+ 
+     n_jobs = 1
+-    with contextlib.suppress(ImportError):
+-        import joblib
++    # with contextlib.suppress(ImportError):
++    #     import joblib
+ 
+-        n_jobs = joblib.cpu_count()
++    #     n_jobs = joblib.cpu_count()
+ 
+     # Additional checks for Cython
+     cython_enable_debug_directives = (
