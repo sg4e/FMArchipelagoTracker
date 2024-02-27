@@ -11,12 +11,12 @@ jobs:
       # Checkout your code
       - uses: actions/checkout@v4
 
-      # Make sure the latest GraalVM is installed.
-      # after this step env.JAVA_HOME and env.GRAALVM_HOME will point to the GraalVM location
-      - name: Setup GraalVM built by Gluon
-        uses: gluonhq/setup-graalvm@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Gluon recommends their own GraalVM build, but we have to use a more recent one
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Install extra required packaged on top of ubuntu-latest
       - name: Install libraries
