@@ -1,0 +1,111 @@
+diff --git a/wheel/bdist_wheel.py b/wheel/bdist_wheel.py
+index 7fcf4a3..4359ecc 100644
+--- a/wheel/bdist_wheel.py
++++ b/wheel/bdist_wheel.py
+@@ -13,6 +13,7 @@ import stat
+ import sys
+ import sysconfig
+ import warnings
++import struct
+ from collections import OrderedDict
+ from email.generator import BytesGenerator, Generator
+ from email.policy import EmailPolicy
+@@ -49,7 +50,7 @@ def get_platform(archive_root):
+     result = sysconfig.get_platform()
+     if result.startswith("macosx") and archive_root is not None:
+         result = calculate_macosx_platform_tag(archive_root, result)
+-    elif result == "linux-x86_64" and sys.maxsize == 2147483647:
++    elif result == "linux-x86_64" and struct.calcsize("P") == 4:
+         # pip pull request #3497
+         result = "linux-i686"
+ 
+@@ -97,6 +98,9 @@ def get_abi_tag():
+         # we want something like pypy36-pp73
+         abi = "-".join(soabi.split("-")[:2])
+         abi = abi.replace(".", "_").replace("-", "_")
++    elif soabi and impl == "graalpy":
++        abi = "-".join(soabi.split("-")[:3])
++        abi = abi.replace(".", "_").replace("-", "_")
+     elif soabi:
+         abi = soabi.replace(".", "_").replace("-", "_")
+     else:
+@@ -281,7 +285,7 @@ class bdist_wheel(Command):
+ 
+             if (
+                 plat_name in ("linux-x86_64", "linux_x86_64")
+-                and sys.maxsize == 2147483647
++                and struct.calcsize("P") == 4
+             ):
+                 plat_name = "linux_i686"
+ 
+diff --git a/wheel/vendored/packaging/tags.py b/wheel/vendored/packaging/tags.py
+index 4e003a9..7c2058f 100644
+--- a/wheel/vendored/packaging/tags.py
++++ b/wheel/vendored/packaging/tags.py
+@@ -6,6 +6,7 @@ from __future__ import annotations
+ 
+ import logging
+ import platform
++import struct
+ import sys
+ import sysconfig
+ from importlib.machinery import EXTENSION_SUFFIXES
+@@ -27,7 +28,7 @@ INTERPRETER_SHORT_NAMES: dict[str, str] = {
+ }
+ 
+ 
+-_32_BIT_INTERPRETER = sys.maxsize <= 2 ** 32
++_32_BIT_INTERPRETER = struct.calcsize("P") == 4
+ 
+ 
+ class Tag:
+@@ -215,10 +216,45 @@ def cpython_tags(
+                 yield Tag(interpreter, "abi3", platform_)
+ 
+ 
+-def _generic_abi() -> Iterator[str]:
+-    abi = sysconfig.get_config_var("SOABI")
+-    if abi:
+-        yield _normalize_string(abi)
++def _generic_abi() -> List[str]:
++    """
++    Return the ABI tag based on EXT_SUFFIX.
++    """
++    # The following are examples of `EXT_SUFFIX`.
++    # We want to keep the parts which are related to the ABI and remove the
++    # parts which are related to the platform:
++    # - linux:   '.cpython-310-x86_64-linux-gnu.so' => cp310
++    # - mac:     '.cpython-310-darwin.so'           => cp310
++    # - win:     '.cp310-win_amd64.pyd'             => cp310
++    # - win:     '.pyd'                             => cp37 (uses _cpython_abis())
++    # - pypy:    '.pypy38-pp73-x86_64-linux-gnu.so' => pypy38_pp73
++    # - graalpy: '.graalpy-38-native-x86_64-darwin.dylib'
++    #                                               => graalpy_38_native
++
++    ext_suffix = _get_config_var("EXT_SUFFIX", warn=True)
++    if not isinstance(ext_suffix, str) or ext_suffix[0] != ".":
++        raise SystemError("invalid sysconfig.get_config_var('EXT_SUFFIX')")
++    parts = ext_suffix.split(".")
++    if len(parts) < 3:
++        # CPython3.7 and earlier uses ".pyd" on Windows.
++        return _cpython_abis(sys.version_info[:2])
++    soabi = parts[1]
++    if soabi.startswith("cpython"):
++        # non-windows
++        abi = "cp" + soabi.split("-")[1]
++    elif soabi.startswith("cp"):
++        # windows
++        abi = soabi.split("-")[0]
++    elif soabi.startswith("pypy"):
++        abi = "-".join(soabi.split("-")[:2])
++    elif soabi.startswith("graalpy"):
++        abi = "-".join(soabi.split("-")[:3])
++    elif soabi:
++        # pyston, ironpython, others?
++        abi = soabi
++    else:
++        return []
++    return [_normalize_string(abi)]
+ 
+ 
+ def generic_tags(

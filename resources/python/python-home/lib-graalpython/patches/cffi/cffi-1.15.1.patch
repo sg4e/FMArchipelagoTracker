@@ -1,0 +1,76 @@
+diff --git a/c/_cffi_backend.c b/c/_cffi_backend.c
+index 2cdb76b..ab91032 100644
+--- a/c/_cffi_backend.c
++++ b/c/_cffi_backend.c
+@@ -5828,7 +5828,7 @@ static CTypeDescrObject *fb_prepare_ctype(struct funcbuilder_s *fb,
+     fb->bufferp = NULL;
+     fb->fct = NULL;
+ 
+-    pfargs = (CTypeDescrObject **)&PyTuple_GET_ITEM(fargs, 0);
++    pfargs = (CTypeDescrObject **)PySequence_Fast_ITEMS(fargs);
+     nargs = PyTuple_GET_SIZE(fargs);
+ #if defined(MS_WIN32) && !defined(_WIN64)
+     if (fabi == FFI_STDCALL)
+diff --git a/c/lib_obj.c b/c/lib_obj.c
+index 38bf3d5..9954f3b 100644
+--- a/c/lib_obj.c
++++ b/c/lib_obj.c
+@@ -46,10 +46,10 @@ static struct CPyExtFunc_s *_cpyextfunc_get(PyObject *x)
+ 
+     fo = (PyCFunctionObject *)x;
+     lo = (LibObject *)y;
+-    if (lo->l_libname != fo->m_module)
++    if (lo->l_libname != _PyCFunction_GetModule(fo))
+         return NULL;
+ 
+-    return (struct CPyExtFunc_s *)(fo->m_ml);
++    return (struct CPyExtFunc_s *)(_PyCFunction_GetMethodDef(fo));
+ }
+ 
+ static PyObject *_cpyextfunc_type(LibObject *lib, struct CPyExtFunc_s *exf)
+diff --git a/c/misc_thread_common.h b/c/misc_thread_common.h
+index 66e2835..b48fd85 100644
+--- a/c/misc_thread_common.h
++++ b/c/misc_thread_common.h
+@@ -329,40 +329,7 @@ static PyThreadState *get_current_ts(void)
+ 
+ static PyGILState_STATE gil_ensure(void)
+ {
+-    /* Called at the start of a callback.  Replacement for
+-       PyGILState_Ensure().
+-    */
+-    PyGILState_STATE result;
+-    PyThreadState *ts = PyGILState_GetThisThreadState();
+-
+-    if (ts != NULL) {
+-        ts->gilstate_counter++;
+-        if (ts != get_current_ts()) {
+-            /* common case: 'ts' is our non-current thread state and
+-               we have to make it current and acquire the GIL */
+-            PyEval_RestoreThread(ts);
+-            return PyGILState_UNLOCKED;
+-        }
+-        else {
+-            return PyGILState_LOCKED;
+-        }
+-    }
+-    else {
+-        /* no thread state here so far. */
+-        result = PyGILState_Ensure();
+-        assert(result == PyGILState_UNLOCKED);
+-
+-        ts = PyGILState_GetThisThreadState();
+-        assert(ts != NULL);
+-        assert(ts == get_current_ts());
+-        assert(ts->gilstate_counter >= 1);
+-
+-        /* Use the ThreadCanary mechanism to keep 'ts' alive until the
+-           thread really shuts down */
+-        thread_canary_register(ts);
+-
+-        return result;
+-    }
++    return PyGILState_Ensure();
+ }
+ 
+ static void gil_release(PyGILState_STATE oldstate)
