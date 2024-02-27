@@ -1,5 +1,11 @@
+name: Build for Linux
+on: [ push, pull_request ]
+permissions:
+  contents: write
+
 jobs:
-build:
+  build:
+    name: Build for Linux
     runs-on: ubuntu-latest
     steps:
       # Checkout your code
@@ -29,7 +35,7 @@ build:
 
       # Upload the staging directory as a build artifact. You will be able to download this after the build finishes.
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-x64
           path: staging
