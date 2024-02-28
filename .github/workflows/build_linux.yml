@@ -19,11 +19,9 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Save the value of JAVA_HOME into a file
       - name: Save JAVA_HOME
-        run: echo "::set-env name=SAVED_JAVA_HOME::${JAVA_HOME}"
-        shell: bash
-        env:
-          JAVA_HOME: ${{ steps.graalvm.outputs.java-home }}
+        run: echo "${{ steps.graalvm.outputs.java-home }}" > java_home.txt
 
       # Install extra required packages on top of ubuntu-latest
       - name: Install libraries
@@ -55,8 +53,7 @@ jobs:
           mvn clean install
 
       - name: Restore JAVA_HOME
-        run: echo "::set-env name=JAVA_HOME::${{ env.SAVED_JAVA_HOME }}"
-        shell: bash
+        run: export JAVA_HOME=$(cat java_home.txt)
 
       # Build your project using Maven with GraalVM
       # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
