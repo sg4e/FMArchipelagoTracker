@@ -116,6 +116,7 @@
                 <configuration>
                     <target>${gluonfx.target}</target>
                     <mainClass>${main.class}</mainClass>
+                    <verbose>true</verbose>
                     <!-- this is required because of the following linker error -->
                     <!-- pythonjni.lib(pythonjni.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in python-native.lib(python-native.dll); second definition ignored -->
                     <linkerArgs>${gluonfx.linkerArgs}</linkerArgs>
