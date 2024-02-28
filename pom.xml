@@ -16,7 +16,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <javafx.version>21</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
-        <gluonfx.plugin.version>1.0.22</gluonfx.plugin.version>
+        <gluonfx.plugin.version>1.0.23-SNAPSHOT</gluonfx.plugin.version>
         <main.class>moe.maika.fmaptracker.Tracker</main.class>
     </properties>
 
@@ -192,6 +192,13 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+          <id>my-local-repo</id>
+          <url>file://${user.home}/.m2/repository</url>
+        </repository>
+        <!-- Other repositories can be defined here -->
+    </repositories>
 
     <profiles>
         <profile>

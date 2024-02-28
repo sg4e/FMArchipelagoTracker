@@ -1,5 +1,5 @@
 name: Build for Linux
-on: [ push, pull_request ]
+on: [push, pull_request]
 permissions:
   contents: write
 
@@ -11,14 +11,15 @@ jobs:
       # Checkout your code
       - uses: actions/checkout@v4
 
-      # Gluon recommends their own GraalVM build, but we have to use a more recent one
-      - uses: graalvm/setup-graalvm@v1
+      # Set up GraalVM for non-Maven projects
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Install extra required packaged on top of ubuntu-latest
+      # Install extra required packages on top of ubuntu-latest
       - name: Install libraries
         run: sudo apt install libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
 
@@ -26,13 +27,31 @@ jobs:
       - name: Make staging directory
         run: mkdir staging
 
-      # Build your project using Maven
-      # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
-      - name: Gluon Compile
-        run: mvn gluonfx:compile
+      # Checkout and build the 'substrate' repository
+      - name: Checkout substrate repository
+        run: git clone https://github.com/sg4e/substrate
+      - name: Build and Publish substrate to Maven Local
+        run: |
+          cd substrate
+          gradle publishToMavenLocal
 
-      - name: Gluon Link (manual)
-        run: gcc /home/runner/work/FMArchipelagoTracker/FMArchipelagoTracker/target/gluonfx/x86_64-linux/gvm/FMAchipelagoTracker/launcher.o /home/runner/work/FMArchipelagoTracker/FMArchipelagoTracker/target/gluonfx/x86_64-linux/gvm/tmp/SVM-1709091490556/moe.maika.fmaptracker.tracker.o /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libjava.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libnio.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libzip.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libnet.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libprefs.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libj2pkcs11.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libextnet.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libfontmanager.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libjavajpeg.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/liblcms.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libawt_headless.a /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/static/linux-amd64/glibc/libawt.a -l:libjvm.a -l:liblibchelper.a -lz -ldl -lstdc++ -lpthread -Wl,--wrap=pow -rdynamic -lprism_es2 -lglass -lglassgtk3 -ljavafx_font -ljavafx_font_freetype -ljavafx_font_pango -ljavafx_iio -lgstreamer-lite -lavcodec -lavformat -lavutil -lasound -Wl,--no-whole-archive -lGL -lX11 -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lfreetype -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lharfbuzz -lfontconfig -lfreetype -lgthread-2.0 -pthread -lglib-2.0 -lstdc++ -lz -lXtst -lm -lgmodule-2.0 -pthread -lglib-2.0 -lm -ldl -Wl,--unresolved-symbols=ignore-all -o /home/runner/work/FMArchipelagoTracker/FMArchipelagoTracker/target/gluonfx/x86_64-linux/FMAchipelagoTracker -L/opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1/lib/svm/clibraries/linux-amd64 -L/home/runner/.gluon/substrate/javafxStaticSdk/21-ea+11.1/linux-x86_64/sdk/lib
+      # Checkout and build the 'gluonfx-maven-plugin' repository
+      - name: Checkout gluonfx-maven-plugin repository
+        run: git clone https://github.com/sg4e/gluonfx-maven-plugin
+      - name: Set up Java 11 for gluonfx-maven-plugin
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+      - name: Build and Publish gluonfx-maven-plugin to Maven Local
+        run: |
+          cd gluonfx-maven-plugin
+          mvn clean install
+
+      # Build your project using Maven with GraalVM
+      # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
+      - name: Gluon Build
+        run: mvn gluonfx:build
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
@@ -44,3 +63,4 @@ jobs:
         with:
           name: linux-x64
           path: staging
+
