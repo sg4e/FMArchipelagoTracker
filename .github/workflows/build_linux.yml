@@ -58,7 +58,7 @@ jobs:
       # Build your project using Maven with GraalVM
       # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
       - name: Gluon Build
-        run: mvnw gluonfx:build
+        run: mvn gluonfx:build
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
