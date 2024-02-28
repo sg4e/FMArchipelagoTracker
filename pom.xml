@@ -224,7 +224,7 @@
                 </os>
             </activation>
             <properties>
-                <gluonfx.linkerArgs>--allow-multiple-definition --unresolved-symbols=ignore-all</gluonfx.linkerArgs>
+                <gluonfx.linkerArgs>-Wl,--unresolved-symbols=ignore-all</gluonfx.linkerArgs>
             </properties>
         </profile>
     </profiles>
