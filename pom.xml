@@ -119,7 +119,7 @@
                     <verbose>true</verbose>
                     <!-- this is required because of the following linker error -->
                     <!-- pythonjni.lib(pythonjni.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in python-native.lib(python-native.dll); second definition ignored -->
-                    <linkerArgs>${gluonfx.linkerArgs}</linkerArgs>
+                    <linkerArgs>"${gluonfx.linkerArgs}"</linkerArgs>
                     <!-- <bundlesList>
                         <list>moe.maika.fmaptracker</list>
                     </bundlesList> -->
@@ -225,7 +225,7 @@
                 </os>
             </activation>
             <properties>
-                <gluonfx.linkerArgs>"-Wl,--unresolved-symbols=ignore-all"</gluonfx.linkerArgs>
+                <gluonfx.linkerArgs>-Wl,--unresolved-symbols=ignore-all</gluonfx.linkerArgs>
             </properties>
         </profile>
     </profiles>
