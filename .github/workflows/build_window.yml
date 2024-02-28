@@ -1,0 +1,49 @@
+name: Build for Windows (x64)
+on: [push, pull_request]
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build for Windows (x64)
+    runs-on: windows-latest
+    steps:
+      # Checkout your code
+      - uses: actions/checkout@v4
+
+      # Setup the Windows build environment
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Visual Studio shell
+        uses: egor-tensin/vs-shell@v2
+
+      # Set up GraalVM for non-Maven projects
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Create a staging directory where the binary will be copied into
+      - name: Make staging directory
+        run: mkdir staging
+
+      # Build your project using Maven with GraalVM
+      # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
+      - name: Gluon Build
+        run: mvn gluonfx:build
+
+      # Copy the native binary to the staging directory
+      - name: Copy native image to staging
+        run: |
+          cp -r target/gluonfx/x86_64-windows/FMAchipelagoTracker.exe staging
+          cp -r resources staging
+
+      # Upload the staging directory as a build artifact. You will be able to download this after the build finishes.
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: staging
