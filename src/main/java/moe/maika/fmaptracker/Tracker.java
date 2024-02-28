@@ -24,6 +24,7 @@ import java.util.List;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -50,6 +51,7 @@ public class Tracker extends Application {
         VBox root = rootLoader.load();
         TrackerController trackerController = rootLoader.getController();
         trackerController.setConnectInfo(connectInfo);
+        stage.getIcons().add(trackerController.getIconForApplication());
 
         FXMLLoader connectLoader = new FXMLLoader(getClass().getResource("connect.fxml"));
         GridPane connectModal = connectLoader.load();
@@ -62,6 +64,8 @@ public class Tracker extends Application {
         connectStage.initModality(Modality.APPLICATION_MODAL);
         connectStage.setResizable(false);
         connectStage.setScene(new Scene(connectModal));
+        Image connectIcon = new Image(getClass().getResourceAsStream("connect_icon.png"));
+        connectStage.getIcons().add(connectIcon);
         trackerController.setConnectModalStage(connectStage);
         trackerController.setPrimaryStage(stage);
 

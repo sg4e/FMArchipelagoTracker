@@ -190,6 +190,11 @@ public class TrackerController {
         });
     }
 
+    public Image getIconForApplication() {
+        //images are loaded by this controller, so it's easier to query the controller for it
+        return duelistImages[0];
+    }
+
     public void setConnectInfo(ConnectInfo connectInfo) {
         this.connectInfo = connectInfo;
     }
