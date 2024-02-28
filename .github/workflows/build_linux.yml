@@ -19,10 +19,6 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Save the value of JAVA_HOME into a file
-      - name: Save JAVA_HOME
-        run: echo "${{ steps.graalvm.outputs.java-home }}" > java_home.txt
-
       # Install extra required packages on top of ubuntu-latest
       - name: Install libraries
         run: sudo apt install libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
@@ -52,13 +48,12 @@ jobs:
           cd gluonfx-maven-plugin
           mvn clean install
 
-      - name: Restore JAVA_HOME
-        run: export JAVA_HOME=$(cat java_home.txt)
-
       # Build your project using Maven with GraalVM
       # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
       - name: Gluon Build
         run: mvn gluonfx:build
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/graalvm-jdk-21_linux-x64_bin/21.0.0/x64/graalvm-jdk-21.0.2+13.1
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
