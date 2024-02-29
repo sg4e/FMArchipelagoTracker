@@ -383,8 +383,16 @@ public class TrackerController {
     private void showFailedSignatureNotifAndExit() {
         log.log(Level.SEVERE, "Signature failure");
         Platform.runLater(() -> {
-            // TODO better message with hyperlink to repo
-            showAlertDialog("Failed to verify FM world", "Error", AlertType.ERROR);
+            showAlertDialog("The Forbidden Memories apworld file in your Archipelago installation has been tampered with. " +
+                "You did not download this apworld file from the official releases page and are potentially exposing yourself " +
+                "to security vulnerabilities.\n\napworlds contain executable files, and when placed inside the Archipelago installation, " +
+                "they may even gain full administrative access to your computer when you run Archipelago. Only install apworlds from " +
+                "sources you trust.\n\nThe developer of this tracker is also responsible for making official releases of the Forbidden " +
+                "Memories apworld. Every apworld release contains a non-forgeable signature from the developer. This tracker has confirmed " +
+                "that the signature is missing in the currently installed apworld. For your protection, this tracker will not import " +
+                "the apworld and will exit. You are greatly encouraged to delete the currently installed FM apworld and download the " +
+                "latest version from the official releases page:",
+                "Signature Validation Failure", AlertType.ERROR, FM_AP_WORLD_RELEASES_URL, FM_AP_WORLD_RELEASES_URL);
             System.exit(0);
         });
     }
