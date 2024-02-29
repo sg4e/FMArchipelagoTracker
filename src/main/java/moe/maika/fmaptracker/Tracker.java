@@ -52,6 +52,7 @@ public class Tracker extends Application {
         TrackerController trackerController = rootLoader.getController();
         trackerController.setConnectInfo(connectInfo);
         stage.getIcons().add(trackerController.getIconForApplication());
+        trackerController.setHostServices(getHostServices());
 
         FXMLLoader connectLoader = new FXMLLoader(getClass().getResource("connect.fxml"));
         GridPane connectModal = connectLoader.load();

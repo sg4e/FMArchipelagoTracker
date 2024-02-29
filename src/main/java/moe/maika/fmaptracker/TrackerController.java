@@ -54,6 +54,7 @@ import com.google.gson.JsonElement;
 import gg.archipelago.client.ArchipelagoClient;
 import gg.archipelago.client.Print.APPrint;
 import gg.archipelago.client.parts.NetworkItem;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -63,11 +64,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -108,6 +111,8 @@ public class TrackerController {
 
     private static final String DEFAULT_AP_INSTALL_LOCATION = "C:\\ProgramData\\Archipelago";
     private static final String SETTINGS_FOLDER = ".FMAPTracker";
+    private static final String FM_AP_WORLD_FILENAME = "fm.apworld";
+    private static final String FM_AP_WORLD_RELEASES_URL = "https://github.com/sg4e/Archipelago/releases";
     private static final long SLEEP_BETWEEN_UI_UPDATE_MILLIS = 500L;
     private static final long COALESCE_WORK_UNIT_SLEEP_MILLIS = 100L;
 
@@ -115,6 +120,7 @@ public class TrackerController {
     private final ExecutorService executor;
     private final DirectoryChooser directoryChooser;
     private ConnectInfo connectInfo = null;
+    private HostServices hostServices;
 
     public TrackerController() {
         workQueue = new LinkedBlockingQueue<>(1);
@@ -180,7 +186,6 @@ public class TrackerController {
         saTecFarm.updateTopFarms(topFarmsForDuelRank.get("SATEC"), duelistImages);
         duelistBox.getItems().setAll(sortedFarmList);
         duelistBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            // TODO why can this be null?
             if(newVal == null) {
                 log.warning("Farm was null when setting selection model");
             }
@@ -201,6 +206,10 @@ public class TrackerController {
 
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
+    }
+
+    public void setHostServices(HostServices hostServices) {
+        this.hostServices = hostServices;
     }
 
     public void loadFMWorld() {
@@ -231,7 +240,16 @@ public class TrackerController {
         catch(IOException e) {
             log.log(Level.WARNING, "Failed to save settings", e);
         }
-        Path fmWorldPath = Paths.get(apProgramDataLocation, "lib", "worlds", "FM.apworld");
+        Path fmWorldPath = Paths.get(apProgramDataLocation, "lib", "worlds", FM_AP_WORLD_FILENAME);
+        if(!fmWorldPath.toFile().exists()) {
+            showAlertDialog(String.format("There is no %s in your Archipelago installation. Please download a compatible version from " + 
+                            "the official Releases page and place it inside \"lib/worlds\" in your Archipelago installation, then relaunch the tracker:", FM_AP_WORLD_FILENAME), 
+                    String.format("No %s in AP installation", FM_AP_WORLD_FILENAME),
+                    AlertType.ERROR,
+                    FM_AP_WORLD_RELEASES_URL,
+                    FM_AP_WORLD_RELEASES_URL);
+            System.exit(0);
+        }
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         executor.submit(() -> {
             //look for the FM APWorld file
@@ -506,11 +524,29 @@ public class TrackerController {
     }
 
     private void showAlertDialog(String message, String title, AlertType type) {
+        showAlertDialog(message, title, type, null, null);
+    }
+
+    private void showAlertDialog(String message, String title, AlertType type, String hyperlinkText, String hyperlinkLink) {
         // JOptionPane.showMessageDialog(TrackerController.this, message, title, JOptionPane.ERROR_MESSAGE);
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        if(hyperlinkText == null || "".equals(hyperlinkText.trim())) {
+            alert.setContentText(message);
+        }
+        else {
+            // append a hyperlink at the end of the alert
+            Hyperlink hyperlink = new Hyperlink(hyperlinkText);
+            hyperlink.setOnAction(event -> hostServices.showDocument(hyperlinkLink));
+
+            Label label = new Label(message);
+            label.setWrapText(true);
+            VBox vbox = new VBox(label, hyperlink);
+            vbox.setSpacing(10);
+            vbox.setPrefWidth(300);
+            alert.getDialogPane().setContent(vbox);
+        }
         alert.showAndWait();
     }
 
