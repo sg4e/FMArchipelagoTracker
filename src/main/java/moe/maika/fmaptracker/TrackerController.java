@@ -425,6 +425,7 @@ public class TrackerController {
 
         // Create a file handler
         try {
+            new File("FMAPTrackerData").mkdirs();
             FileHandler fileHandler = new FileHandler("FMAPTrackerData/Tracker.log", 5 * 1024 * 1024, 1, true);
             fileHandler.setLevel(Level.INFO); // Set file handler level
             fileHandler.setFormatter(new SimpleFormatter()); // Set formatter
