@@ -22,6 +22,6 @@ How to build and run from source:
 
 Copyright 2024 sg4e. Licensed under the [MIT License](LICENSE.txt).
 
-This project contains small images of duelists' faces in the [`duelists` folder](https://github.com/sg4e/FMArchipelagoTracker/tree/master/src/main/resources/moe/maika/fmaptracker/duelists) that are used in the application. These images are included under the assumption that their inclusion constitutes Fair Use.
+This project contains small images of duelists' faces in the [`duelists` folder](src/main/resources/moe/maika/fmaptracker/duelists) that are used in the application. These images are included under the assumption that their inclusion constitutes Fair Use.
 
 This project is neither endorsed by nor affiliated with Konami. All intellectual property rights to the *Yu-Gi-Oh!* franchise and the *Forbidden Memories* game belong to Konami.
