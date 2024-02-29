@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.Security;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -82,6 +83,8 @@ public class TrackerController {
     private final BlockingQueue<WorkUnit> workQueue;
     private final Logger log;
 
+    @FXML
+    private Label topLabel;
     @FXML
     private Label labelImpl;
     @FXML
@@ -234,12 +237,6 @@ public class TrackerController {
             apProgramDataLocation = selectedFile.getAbsolutePath();
         }
         settings.setProperty("APProgramData", apProgramDataLocation);
-        try(var settingsWriter = Files.newBufferedWriter(Paths.get(settingsPath.toString(), "settings.properties"))) {
-            settings.store(settingsWriter, "Forbidden Memories AP Tracker settings");
-        }
-        catch(IOException e) {
-            log.log(Level.WARNING, "Failed to save settings", e);
-        }
         Path fmWorldPath = Paths.get(apProgramDataLocation, "lib", "worlds", FM_AP_WORLD_FILENAME);
         if(!fmWorldPath.toFile().exists()) {
             showAlertDialog(String.format("There is no %s in your Archipelago installation. Please download a compatible version from " + 
@@ -251,88 +248,127 @@ public class TrackerController {
             System.exit(0);
         }
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        final Properties settingsForSubthread = settings;
         executor.submit(() -> {
-            //look for the FM APWorld file
+            // check if apworld and the extracted version have the same checksum
+            boolean copyFilesFromAPWorld = true;
+            String fmWorldSha256String = null;
+            String propertiesShaKey = "apworldsha256";
             try {
-                Path tempPythonPath = Paths.get(settingsPath.toString(), "newPython");
-                if(Files.exists(tempPythonPath)) {
-                    deleteDirectory(tempPythonPath.toFile());
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                md.update(Files.readAllBytes(fmWorldPath));
+                byte[] sha256Bytes = md.digest();
+                StringBuilder sb = new StringBuilder();
+                for(byte b : sha256Bytes) {
+                    sb.append(String.format("%02x", b));
                 }
-                // TODO remove old python dir only if apworld is new
-                Path validatedPythonPath = Paths.get(settingsPath.toString(), "python");
-                if(Files.exists(validatedPythonPath)) {
-                    deleteDirectory(validatedPythonPath.toFile());
-                }
-                Files.createDirectories(tempPythonPath);
-                try(var zip = new ZipFile(fmWorldPath.toString())) {
-                    zip.extractAll(tempPythonPath.toString());
-                }
-                InputStream keyIn = TrackerController.this.getClass().getResourceAsStream("sg4e_public_key.pem");
-                PGPPublicKeyRingCollection pgpPubRingCollection = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(keyIn), new JcaKeyFingerprintCalculator());
-                boolean verified = false;
-                try {
-                    //non-recursive
-                    verified = Files.walk(tempPythonPath)
-                            .filter(f -> Files.isRegularFile(f) && !f.getFileName().toString().endsWith(".sig"))
-                            .map(p -> {
-                                log.info("Checking signature for " + p);
-                                Path sigFile = p.resolveSibling(p.getFileName().toString() + ".sig");
-                            try {
-                                if(!verifySignature(p.toAbsolutePath().toString(), sigFile.toAbsolutePath().toString(), pgpPubRingCollection)) {
-                                    log.log(Level.SEVERE, "Failed to verify signature for " + p);
-                                    return false;
-                                }
-                            }
-                            catch(Exception e) {
-                                log.log(Level.SEVERE, "Failed to verify signature for " + p, e);
-                                return false;
-                            }
-                            try {
-                                // preprocess python file
-                                preprocessPythonFile(p);
-                            }
-                            catch(Exception e) {
-                                log.log(Level.SEVERE, "Failed to preprocess python file", e);
-                                return false;
-                            }
-                            return true;
-                            }).allMatch(Boolean::booleanValue);
-                }
-                catch(Exception e) {
-                    log.log(Level.SEVERE, "Failed to verify signatures", e);
-                    showFailedSignatureNotifAndExit();
-                }
-                if(verified) {
-                    // TODO only move if new apworld
-                    Files.move(tempPythonPath, validatedPythonPath);
-                    // init graal python
-                    pythonInitializer = executor.submit(() -> {
-                        Context ctx = Context.newBuilder()
-                        .allowIO(IOAccess.newBuilder()
-                        .allowHostFileAccess(true).build())
-                        .allowHostAccess(HostAccess.newBuilder(HostAccess.EXPLICIT).allowListAccess(true).build())
-                        .option("python.PythonPath", Paths.get(settingsPath.toAbsolutePath().toString(), "python", "fm").toAbsolutePath().toString())
-                        .build();
-                        InputStreamReader reader = new InputStreamReader(TrackerController.this.getClass().getResourceAsStream("java-wrapper.py"));
-                        Source src = Source.newBuilder("python", reader, "java-wrapper.py").build();
-                        ctx.eval(src);
-                        return ctx;
-                    });
-                    Platform.runLater(() -> {
-                        connectButton.setDisable(false);
-                    });
+                fmWorldSha256String = sb.toString();
+                String lastApWorldSha = settingsForSubthread.getProperty(propertiesShaKey);
+                if(fmWorldSha256String == null || fmWorldSha256String.isBlank())
+                    throw new RuntimeException("SHA256 is blank");
+                if(fmWorldSha256String.equals(lastApWorldSha)) {
+                    copyFilesFromAPWorld = false;
+                    log.log(Level.INFO, "Current and previous AP world checksums match. Skipping file extraction.");
                 }
                 else {
-                    showFailedSignatureNotifAndExit();
+                    copyFilesFromAPWorld = true;
+                    log.log(Level.INFO, "Checksum mismatch. Extracting new apworld for logic.");
                 }
             }
             catch(Exception e) {
-                log.log(Level.SEVERE, "Failed to extract FM world", e);
-                Platform.runLater(() -> {
-                    showAlertDialog("Failed to extract FM world", "Error", AlertType.ERROR);
-                    System.exit(0);
-                });
+                log.log(Level.WARNING, "Error reading APWorld file and comparing checksums. APWorld will be re-validated", e);
             }
+            if(copyFilesFromAPWorld) {
+                //look for the FM APWorld file
+                try {
+                    Path tempPythonPath = Paths.get(settingsPath.toString(), "newPython");
+                    if(Files.exists(tempPythonPath)) {
+                        deleteDirectory(tempPythonPath.toFile());
+                    }
+                    Path validatedPythonPath = Paths.get(settingsPath.toString(), "python");
+                    if(Files.exists(validatedPythonPath)) {
+                        deleteDirectory(validatedPythonPath.toFile());
+                    }
+                    Files.createDirectories(tempPythonPath);
+                    try(var zip = new ZipFile(fmWorldPath.toString())) {
+                        zip.extractAll(tempPythonPath.toString());
+                    }
+                    InputStream keyIn = TrackerController.this.getClass().getResourceAsStream("sg4e_public_key.pem");
+                    PGPPublicKeyRingCollection pgpPubRingCollection = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(keyIn), new JcaKeyFingerprintCalculator());
+                    boolean verified = false;
+                    try {
+                        //non-recursive
+                        verified = Files.walk(tempPythonPath)
+                                .filter(f -> Files.isRegularFile(f) && !f.getFileName().toString().endsWith(".sig"))
+                                .map(p -> {
+                                    log.info("Checking signature for " + p);
+                                    Path sigFile = p.resolveSibling(p.getFileName().toString() + ".sig");
+                                try {
+                                    if(!verifySignature(p.toAbsolutePath().toString(), sigFile.toAbsolutePath().toString(), pgpPubRingCollection)) {
+                                        log.log(Level.SEVERE, "Failed to verify signature for " + p);
+                                        return false;
+                                    }
+                                }
+                                catch(Exception e) {
+                                    log.log(Level.SEVERE, "Failed to verify signature for " + p, e);
+                                    return false;
+                                }
+                                try {
+                                    // preprocess python file
+                                    preprocessPythonFile(p);
+                                }
+                                catch(Exception e) {
+                                    log.log(Level.SEVERE, "Failed to preprocess python file", e);
+                                    return false;
+                                }
+                                return true;
+                                }).allMatch(Boolean::booleanValue);
+                    }
+                    catch(Exception e) {
+                        log.log(Level.SEVERE, "Failed to verify signatures", e);
+                        showFailedSignatureNotifAndExit();
+                    }
+                    if(verified) {
+                        Files.move(tempPythonPath, validatedPythonPath);
+                    }
+                    else {
+                        showFailedSignatureNotifAndExit();
+                    }
+                }
+                catch(Exception e) {
+                    log.log(Level.SEVERE, "Failed to extract FM world", e);
+                    Platform.runLater(() -> {
+                        showAlertDialog("Failed to extract FM world", "Error", AlertType.ERROR);
+                        System.exit(0);
+                    });
+                }
+            }
+            settingsForSubthread.setProperty(propertiesShaKey, fmWorldSha256String);
+            try(var settingsWriter = Files.newBufferedWriter(Paths.get(settingsPath.toString(), "settings.properties"))) {
+                settingsForSubthread.store(settingsWriter, "Forbidden Memories AP Tracker settings");
+            }
+            catch(IOException e) {
+                log.log(Level.WARNING, "Failed to save settings", e);
+            }
+            // init graal python
+            pythonInitializer = executor.submit(() -> {
+                Context ctx = Context.newBuilder()
+                .allowIO(IOAccess.newBuilder()
+                .allowHostFileAccess(true).build())
+                .allowHostAccess(HostAccess.newBuilder(HostAccess.EXPLICIT).allowListAccess(true).build())
+                .option("python.PythonPath", Paths.get(settingsPath.toAbsolutePath().toString(), "python", "fm").toAbsolutePath().toString())
+                .build();
+                InputStreamReader reader = new InputStreamReader(TrackerController.this.getClass().getResourceAsStream("java-wrapper.py"));
+                Source src = Source.newBuilder("python", reader, "java-wrapper.py").build();
+                ctx.eval(src);
+                String worldVersion = ctx.eval("python", "get_version()").asString();
+                String topLabelUpdate = " | FM APWorld v" + worldVersion;
+                Platform.runLater(() -> topLabel.setText(topLabel.getText() + topLabelUpdate));
+                return ctx;
+            });
+            Platform.runLater(() -> {
+                connectButton.setDisable(false);
+            });
         });
     }
 

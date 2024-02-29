@@ -9,11 +9,16 @@ from utils import Constants, flatten
 from cards import Card
 from drop_pools import Drop
 from collections import Counter
+from version import __version__
 
 
 duelist_unlock_order: typing.Tuple[typing.Tuple[Duelist, ...]] = tuple()
 final_6_order: typing.Tuple[Duelist] = tuple()
 options: typing.Optional[OptionsProxy] = None
+
+
+def get_version() -> str:
+    return __version__
 
 
 def initialize(slot_data_raw: str) -> None:
