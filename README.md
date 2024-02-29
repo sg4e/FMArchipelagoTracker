@@ -4,7 +4,7 @@
 
 ## How to get
 
-Builds for Windows (x64) are available on the [Releases page](https://github.com/sg4e/FMArchipelagoTracker/latest).
+Builds for Windows (x64) are available on the [Releases page](https://github.com/sg4e/FMArchipelagoTracker/releases/latest).
 
 Linux (x64 and ARM64) and macOS (x64 and ARM64 M1) are also supported by running from source. 32-bit architectures are not supported.
 
