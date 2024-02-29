@@ -61,7 +61,7 @@ jobs:
           path: .
 
       - name: Zip artifacts
-        run: zip -r windows-x64.zip windows-x64
+        run: zip -r FMArchipelagoTracker-windows.zip windows-x64
 
       - name: Publish release
         uses: softprops/action-gh-release@v1
@@ -69,7 +69,7 @@ jobs:
           fail_on_unmatched_files: true
           prerelease: false
           draft: false
-          files: windows-x64.zip
+          files: FMArchipelagoTracker-windows.zip
           body: |
             Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 
