@@ -47,3 +47,29 @@ jobs:
         with:
           name: windows-x64
           path: staging
+
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Fetch build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .
+
+      - name: Zip artifacts
+        run: zip -r windows-x64.zip windows-x64
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        with:
+          fail_on_unmatched_files: true
+          prerelease: false
+          draft: false
+          files: windows-x64.zip
+          body: |
+            Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+
+            Linux and macOS operating systems are supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
