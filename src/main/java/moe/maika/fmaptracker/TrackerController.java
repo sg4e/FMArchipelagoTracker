@@ -59,6 +59,8 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
@@ -124,6 +126,7 @@ public class TrackerController {
     private final DirectoryChooser directoryChooser;
     private ConnectInfo connectInfo = null;
     private HostServices hostServices;
+    private final FarmChangeListener farmChangeListener;
 
     public TrackerController() {
         workQueue = new LinkedBlockingQueue<>(1);
@@ -132,6 +135,7 @@ public class TrackerController {
         directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Archipelago Data folder");
         duelistImages = new Image[40];
+        farmChangeListener = new FarmChangeListener();
     }
 
     @FXML
@@ -172,6 +176,7 @@ public class TrackerController {
         catch(IOException e) {
             log.log(Level.SEVERE, "Failed to make farm UI", e);
         }
+        duelistBox.getSelectionModel().selectedItemProperty().addListener(farmChangeListener);
     }
 
     private FarmController makeFarmUi(String label, int index) throws IOException {
@@ -184,19 +189,33 @@ public class TrackerController {
         return controller;
     }
 
-    private void updateFarms(Map<Farm, List<Drop>> farms, List<Farm> sortedFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
-        saPowFarm.updateTopFarms(topFarmsForDuelRank.get("SAPOW"), duelistImages);
-        bcdFarm.updateTopFarms(topFarmsForDuelRank.get("BCD"), duelistImages);
-        saTecFarm.updateTopFarms(topFarmsForDuelRank.get("SATEC"), duelistImages);
-        duelistBox.getItems().setAll(sortedFarmList);
-        duelistBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+    private class FarmChangeListener implements ChangeListener<Farm> {
+
+        Map<Farm, List<Drop>> farms;
+
+        public void setFarms(Map<Farm, List<Drop>> farms) {
+            this.farms = farms;
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends Farm> obs, Farm oldVal, Farm newVal) {
             if(newVal == null) {
                 log.warning("Farm was null when setting selection model");
             }
             else {
                 dropTable.getItems().setAll(farms.get(newVal));
             }
-        });
+        }
+
+    }
+
+    private void updateFarms(Map<Farm, List<Drop>> farms, List<Farm> sortedFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
+        saPowFarm.updateTopFarms(topFarmsForDuelRank.get("SAPOW"), duelistImages);
+        bcdFarm.updateTopFarms(topFarmsForDuelRank.get("BCD"), duelistImages);
+        saTecFarm.updateTopFarms(topFarmsForDuelRank.get("SATEC"), duelistImages);
+        duelistBox.getItems().setAll(sortedFarmList);
+        farmChangeListener.setFarms(farms);
+        duelistBox.setDisable(false);
     }
 
     public void setSelectedFarm(Farm selected) {
@@ -373,6 +392,7 @@ public class TrackerController {
             });
             Platform.runLater(() -> {
                 connectButton.setDisable(false);
+                connectButton.requestFocus();
             });
         });
     }

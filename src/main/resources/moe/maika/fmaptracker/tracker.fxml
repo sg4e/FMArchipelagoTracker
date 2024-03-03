@@ -41,7 +41,7 @@
             <Insets left="5.0" right="5.0" />
          </VBox.margin>
       </GridPane>
-      <ComboBox fx:id="duelistBox" prefHeight="25.0" prefWidth="380.0" />
+      <ComboBox fx:id="duelistBox" disable="true" prefHeight="25.0" prefWidth="380.0" />
       <TableView fx:id="dropTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
         <columns>
           <TableColumn fx:id="cardNameColumn" prefWidth="273.0" text="Card" />
