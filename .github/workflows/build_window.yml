@@ -74,3 +74,5 @@ jobs:
             Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 
             Linux and macOS operating systems are supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
+
+            The latest `apworld` for Archipelago is available at [https://github.com/sg4e/Archipelago/releases](https://github.com/sg4e/Archipelago/releases).
