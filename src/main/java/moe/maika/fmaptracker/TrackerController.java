@@ -177,6 +177,8 @@ public class TrackerController {
             log.log(Level.SEVERE, "Failed to make farm UI", e);
         }
         duelistBox.getSelectionModel().selectedItemProperty().addListener(farmChangeListener);
+        probabilityColumn.setSortType(TableColumn.SortType.DESCENDING);
+        dropTable.getSortOrder().add(probabilityColumn);
     }
 
     private FarmController makeFarmUi(String label, int index) throws IOException {
@@ -204,6 +206,7 @@ public class TrackerController {
             }
             else {
                 dropTable.getItems().setAll(farms.get(newVal));
+                dropTable.sort();
             }
         }
 
