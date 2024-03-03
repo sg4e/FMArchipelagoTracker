@@ -81,7 +81,7 @@ import net.lingala.zip4j.ZipFile;
 public class TrackerController {
 
     private final BlockingQueue<WorkUnit> workQueue;
-    private final Logger log;
+    public final Logger log;
 
     @FXML
     private Label topLabel;
@@ -178,6 +178,7 @@ public class TrackerController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("farm.fxml"));
         farmPane.add(loader.load(), index, 0);
         FarmController controller = loader.getController();
+        controller.setTrackerController(this);
         controller.setDuelRank(label);
         controller.setDuelistImage(duelistImages[0]); // build deck image
         return controller;
@@ -196,6 +197,10 @@ public class TrackerController {
                 dropTable.getItems().setAll(farms.get(newVal));
             }
         });
+    }
+
+    public void setSelectedFarm(Farm selected) {
+        duelistBox.getSelectionModel().select(selected);
     }
 
     public Image getIconForApplication() {
