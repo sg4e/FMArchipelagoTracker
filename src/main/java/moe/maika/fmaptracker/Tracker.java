@@ -32,7 +32,7 @@ import javafx.stage.Stage;
 
 public class Tracker extends Application {
 
-    public static final String VERSION = "v1.1.0";
+    public static final String VERSION = "v1.1.1-SNAPSHOT";
 
     @Override
     public void start(Stage stage) throws IOException {
