@@ -26,7 +26,7 @@ The major version indicates compatibility with the [Forbidden Memories Archipela
 
 The minor version is incremented when a new feature or new functionality is added to the tracker.
 
-The patch version in incremented when the release is only a bugfix.
+The patch version is incremented when the release is only a bugfix.
 
 ## Copyright
 
