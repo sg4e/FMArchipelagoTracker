@@ -70,6 +70,7 @@ jobs:
           prerelease: false
           draft: false
           files: FMArchipelagoTracker-windows.zip
+          generate_release_notes: true
           body: |
             Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 
