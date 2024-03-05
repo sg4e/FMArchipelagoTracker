@@ -4,7 +4,7 @@ import logic
 import duelists
 import cards
 from duelists import Duelist
-from logic import OptionsProxy
+from logic import OptionsProxy, LogicCard
 from utils import Constants, flatten
 from cards import Card
 from drop_pools import Drop
@@ -53,15 +53,18 @@ def get_tracker_info(
     all_cards_with_items: typing.List[Card] = logic.get_all_cards_that_have_locations(options)
     missing_cards: typing.Dict[int, Card] = {card.id: card for card in all_cards_with_items if card.location_id in missing_location_ids}
     # TODO (maybe?) pass in-logic droppools to Tracker instead of filtering them
-    in_logic_cards: typing.Dict[int, Card] = {
-        logic_card.card.id: logic_card.card for logic_card in logic.filter_to_in_logic_cards(missing_cards.values(), options)
-    }
+    non_excluded_cards: typing.List[LogicCard] = logic.filter_to_in_logic_cards(missing_cards.values(), options)
     duelists_to_pools = {d: [] for d in unlocked_duelists}
     # (card_name, duel_rank, probability, in_logic: bool)
-    for id, card in missing_cards.items():
-        drop_pools: typing.Tuple[Drop, ...] = card.drop_pool
+    for logic_card in non_excluded_cards:
+        drop_pools: typing.Tuple[Drop, ...] = logic_card.card.drop_pool
         for drop in drop_pools:
             if drop.duelist in duelists_to_pools:
-                duelists_to_pools[drop.duelist].append((card.name, str(drop.duel_rank.name), drop.probability, id in in_logic_cards))
+                duelists_to_pools[drop.duelist].append((
+                    logic_card.card.name,
+                    str(drop.duel_rank.name),
+                    drop.probability,
+                    drop.duelist in [accessible_drop.duelist for accessible_drop in logic_card.accessible_drops]
+                ))
 
     return {(key.id, str(key)): value for key, value in duelists_to_pools.items()}
