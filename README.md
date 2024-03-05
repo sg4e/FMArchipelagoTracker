@@ -18,6 +18,16 @@ How to build and run from source:
     - For Windows, use `run_windows.bat`
     - For Linux and macOS, use `run_linux_macos.sh`
 
+## Versioning
+
+This project uses the following versioning scheme on releases: `v[major].[minor].[patch]`, for example: `v1.2.4`.
+
+The major version indicates compatibility with the [Forbidden Memories Archipelago `apworld` file](https://github.com/sg4e/Archipelago/releases), such that a major version of the tracker shall be compatible with the same major version of the `apworld`, irrespective of the minor version and patch version.
+
+The minor version is incremented when a new feature or new functionality is added to the tracker.
+
+The patch version in incremented when the release is only a bugfix.
+
 ## Copyright
 
 Copyright 2024 sg4e. Licensed under the [MIT License](LICENSE.txt).
