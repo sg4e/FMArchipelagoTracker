@@ -132,6 +132,7 @@ public class TrackerController {
     public TrackerController() {
         workQueue = new LinkedBlockingQueue<>(1);
         log = initLogger();
+        log.info(String.format("Tracker version: %s", Tracker.VERSION));
         executor = Executors.newSingleThreadExecutor();
         directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Archipelago Data folder");
@@ -390,6 +391,7 @@ public class TrackerController {
                 Source src = Source.newBuilder("python", reader, "java-wrapper.py").build();
                 ctx.eval(src);
                 String worldVersion = ctx.eval("python", "get_version()").asString();
+                log.info(String.format("apworld version: %s", worldVersion));
                 String topLabelUpdate = " | FM APWorld v" + worldVersion;
                 Platform.runLater(() -> topLabel.setText(topLabel.getText() + topLabelUpdate));
                 return ctx;
