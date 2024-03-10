@@ -15,6 +15,7 @@ import java.security.Security;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -213,9 +214,9 @@ public class TrackerController {
     }
 
     private void updateFarms(Map<Farm, List<Drop>> farms, List<Farm> sortedFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
-        saPowFarm.updateTopFarms(topFarmsForDuelRank.get("SAPOW"), duelistImages);
-        bcdFarm.updateTopFarms(topFarmsForDuelRank.get("BCD"), duelistImages);
-        saTecFarm.updateTopFarms(topFarmsForDuelRank.get("SATEC"), duelistImages);
+        saPowFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("SAPOW", Collections.emptyList()), duelistImages);
+        bcdFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("BCD",  Collections.emptyList()), duelistImages);
+        saTecFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("SATEC",  Collections.emptyList()), duelistImages);
         duelistBox.getItems().setAll(sortedFarmList);
         farmChangeListener.setFarms(farms);
         duelistBox.setDisable(false);
