@@ -119,6 +119,7 @@ public class TrackerController {
     private static final String SETTINGS_FOLDER = ".FMAPTracker";
     private static final String FM_AP_WORLD_FILENAME = "fm.apworld";
     private static final String FM_AP_WORLD_RELEASES_URL = "https://github.com/sg4e/Archipelago/releases";
+    private static final String TRACKER_RELEASES_URL = "https://github.com/sg4e/FMArchipelagoTracker/releases";
     private static final long SLEEP_BETWEEN_UI_UPDATE_MILLIS = 500L;
     private static final long COALESCE_WORK_UNIT_SLEEP_MILLIS = 100L;
 
@@ -132,7 +133,7 @@ public class TrackerController {
     public TrackerController() {
         workQueue = new LinkedBlockingQueue<>(1);
         log = initLogger();
-        log.info(String.format("Tracker version: %s", Tracker.VERSION));
+        log.info(String.format("Tracker version: %s", Version.getAsString()));
         executor = Executors.newSingleThreadExecutor();
         directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Archipelago Data folder");
@@ -387,13 +388,32 @@ public class TrackerController {
                 .allowHostAccess(HostAccess.newBuilder(HostAccess.EXPLICIT).allowListAccess(true).build())
                 .option("python.PythonPath", Paths.get(settingsPath.toAbsolutePath().toString(), "python", "fm").toAbsolutePath().toString())
                 .build();
+                InputStreamReader versionCheckReader = new InputStreamReader(TrackerController.this.getClass().getResourceAsStream("version-check.py"));
+                Source versionCheckSource = Source.newBuilder("python", versionCheckReader, "version-check.py").build();
+                ctx.eval(versionCheckSource);
+                String worldVersion = ctx.eval("python", "get_apworld_version()").asString();
+                log.info(String.format("apworld version: %s", worldVersion));
+                String topLabelUpdate = " | FM APWorld v" + worldVersion;
+                boolean versionCompatible = Version.isCompatible(worldVersion);
+                Platform.runLater(() -> {
+                    topLabel.setText(topLabel.getText() + topLabelUpdate);
+                    if(!versionCompatible) {
+                        showAlertDialog(String.format("This tracker is not compatible with the installed Forbidden Memories apworld.\n\n" +
+                                "Tracker version: %s\n" +
+                                "apworld version: v%s\n\n" +
+                                "The major version (leftmost number of the version) must match between the tracker and the apworld to ensure compatibility. " +
+                                "Please download the latest %s.x.x release from the tracker's releases page to use this apworld.",
+                                Version.getAsString(), worldVersion, Version.getMajorFromString(worldVersion)),
+                                "Tracker not compatible with apworld version",
+                                AlertType.ERROR,
+                                TRACKER_RELEASES_URL,
+                                TRACKER_RELEASES_URL);
+                        System.exit(0);
+                    }
+                });
                 InputStreamReader reader = new InputStreamReader(TrackerController.this.getClass().getResourceAsStream("java-wrapper.py"));
                 Source src = Source.newBuilder("python", reader, "java-wrapper.py").build();
                 ctx.eval(src);
-                String worldVersion = ctx.eval("python", "get_version()").asString();
-                log.info(String.format("apworld version: %s", worldVersion));
-                String topLabelUpdate = " | FM APWorld v" + worldVersion;
-                Platform.runLater(() -> topLabel.setText(topLabel.getText() + topLabelUpdate));
                 return ctx;
             });
             Platform.runLater(() -> {

@@ -32,11 +32,9 @@ import javafx.stage.Stage;
 
 public class Tracker extends Application {
 
-    public static final String VERSION = "v1.1.3-SNAPSHOT";
-
     @Override
     public void start(Stage stage) throws IOException {
-        stage.setTitle(String.format("Forbidden Memories AP Tracker %s", VERSION));
+        stage.setTitle(String.format("Forbidden Memories AP Tracker %s", Version.getAsString()));
 
         Parameters params = getParameters();
         ConnectInfo connectInfo = null;
