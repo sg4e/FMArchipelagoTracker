@@ -6,6 +6,8 @@
     "pattern": "\\Qmoe/maika/fmaptracker/sg4e_public_key.pem\\E"
   }, {
     "pattern": "\\Qmoe/maika/fmaptracker/java-wrapper.py\\E"
+  }, {
+    "pattern": "\\Qmoe/maika/fmaptracker/version-check.py\\E"
   },
      {
     "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
