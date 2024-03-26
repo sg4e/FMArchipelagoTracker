@@ -770,7 +770,23 @@ public class TrackerController {
                 // at this point, the executor is no longer needed
                 executor.shutdown();
                 ctx.getBindings("python").putMember("slot_data", slotData);
-                ctx.eval("python", "initialize(slot_data)");
+                ctx.eval("python", "load_slot_data(slot_data)");
+                // (is_equal, generator_version, installed_apworld_version)
+                Value versionCheck = ctx.eval("python", "check_client_and_generator_versions_match()");
+                if(!versionCheck.getArrayElement(0).asBoolean()) {
+                    String generatorVersion = versionCheck.getArrayElement(1).asString();
+                    String installedApworldVersion = versionCheck.getArrayElement(2).asString();
+                    log.log(Level.WARNING, String.format("Mismatched generator version (%s) and installed apworld version (%s)",
+                            generatorVersion, installedApworldVersion));
+                    Platform.runLater(() -> showAlertDialog(String.format("The apworld version that was used to generate this multiworld is different from the apworld version you have installed. " + 
+                            "For the best compatibility, please install the same apworld version from the Releases page.\n\nGenerated with apworld: %s\nInstalled apworld: %s",
+                            generatorVersion, installedApworldVersion), 
+                            "apworld version mismatch",
+                            AlertType.WARNING,
+                            FM_AP_WORLD_RELEASES_URL,
+                            FM_AP_WORLD_RELEASES_URL));
+                }
+                ctx.eval("python", "initialize()");
                 // typing.Dict[typing.Tuple[Duelist, str], int]: (duelist, duel_rank) -> total_card_locations
                 Map<Value, Integer> poolCardsDictValue = ctx.eval("python", "get_total_cards_per_farm()")
                         .as(new TypeLiteral<Map<Value, Integer>>() {});

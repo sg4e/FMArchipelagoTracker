@@ -10,16 +10,27 @@ from cards import Card
 from drop_pools import Drop
 from collections import Counter
 from proxy import OptionsProxy
+from version import __version__
 
 
 duelist_unlock_order: typing.Tuple[typing.Tuple[Duelist, ...]] = tuple()
 final_6_order: typing.Tuple[Duelist] = tuple()
 options: typing.Optional[OptionsProxy] = None
+slot_data: typing.Dict = {}
 
 
-def initialize(slot_data_raw: str) -> None:
+def load_slot_data(slot_data_raw: str) -> None:
+    global slot_data
+    slot_data = json.loads(slot_data_raw)
+
+
+def check_client_and_generator_versions_match() -> typing.Tuple[bool, str, str]:
+    generator_version: str = slot_data[Constants.GENERATED_WITH_KEY] if Constants.GENERATED_WITH_KEY in slot_data else "undefined"
+    return (generator_version == __version__, generator_version, __version__)
+
+
+def initialize() -> None:
     global duelist_unlock_order, final_6_order, options
-    slot_data: typing.Dict = json.loads(slot_data_raw)
     duelist_unlock_order = duelists.map_ids_to_duelists(slot_data[Constants.DUELIST_UNLOCK_ORDER_KEY])
     final_6_order = tuple([duelists.ids_to_duelists[i] for i in slot_data[Constants.FINAL_6_ORDER_KEY]])
     options = OptionsProxy(slot_data[Constants.GAME_OPTIONS_KEY])
