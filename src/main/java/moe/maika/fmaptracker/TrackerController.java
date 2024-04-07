@@ -120,6 +120,8 @@ public class TrackerController {
     private static final String FM_AP_WORLD_FILENAME = "fm.apworld";
     private static final String FM_AP_WORLD_RELEASES_URL = "https://github.com/sg4e/Archipelago/releases";
     private static final String TRACKER_RELEASES_URL = "https://github.com/sg4e/FMArchipelagoTracker/releases";
+    private static final String PROPERTIES_SERVER_LITERAL = "ServerAndPort";
+    private static final String PROPERTIES_PLAYER_LITERAL = "PlayerName";
     private static final long SLEEP_BETWEEN_UI_UPDATE_MILLIS = 500L;
     private static final long COALESCE_WORK_UNIT_SLEEP_MILLIS = 100L;
 
@@ -247,15 +249,7 @@ public class TrackerController {
 
     public void loadFMWorld() {
         Path settingsPath = getSettingsDirectory();
-        Properties settings;
-        try(var settingsStream = Files.newInputStream(Paths.get(settingsPath.toString(), "settings.properties"))) {
-            settings = new Properties();
-            settings.load(settingsStream);
-        }
-        catch(IOException e) {
-            log.log(Level.WARNING, "Failed to load settings", e);
-            settings = new Properties();
-        }
+        Properties settings = loadSettingsProperties();
         String apProgramDataLocation = settings.getProperty("APProgramData", DEFAULT_AP_INSTALL_LOCATION);
         if(!isAPProgramData(apProgramDataLocation)) {
             showAlertDialog("Could not find your Archipelago Program Data folder. Please locate it.", "No Archipelago install", AlertType.ERROR);
@@ -374,12 +368,7 @@ public class TrackerController {
                 }
             }
             settingsForSubthread.setProperty(propertiesShaKey, fmWorldSha256String);
-            try(var settingsWriter = Files.newBufferedWriter(Paths.get(settingsPath.toString(), "settings.properties"))) {
-                settingsForSubthread.store(settingsWriter, "Forbidden Memories AP Tracker settings");
-            }
-            catch(IOException e) {
-                log.log(Level.WARNING, "Failed to save settings", e);
-            }
+            storeSettingsProperties(settingsForSubthread);
             // init graal python
             pythonInitializer = executor.submit(() -> {
                 Context ctx = Context.newBuilder()
@@ -507,6 +496,31 @@ public class TrackerController {
         }
     }
 
+    private Properties loadSettingsProperties() {
+        Path settingsPath = getSettingsDirectory();
+        Properties settings;
+        try(var settingsStream = Files.newInputStream(Paths.get(settingsPath.toString(), "settings.properties"))) {
+            settings = new Properties();
+            settings.load(settingsStream);
+        }
+        catch(IOException e) {
+            log.log(Level.WARNING, "Failed to load settings", e);
+            settings = new Properties();
+        }
+
+        return settings;
+    }
+
+    private void storeSettingsProperties(final Properties settings) {
+        Path settingsPath = getSettingsDirectory();
+        try(var settingsWriter = Files.newBufferedWriter(Paths.get(settingsPath.toString(), "settings.properties"))) {
+            settings.store(settingsWriter, "Forbidden Memories AP Tracker settings");
+        }
+        catch(IOException e) {
+            log.log(Level.WARNING, "Failed to save settings", e);
+        }
+    }
+
     private Path getSettingsDirectory() {
         String userHome = System.getProperty("user.home");
         Path settingsPath = Paths.get(userHome, SETTINGS_FOLDER);
@@ -552,6 +566,14 @@ public class TrackerController {
         return logger;
     }
 
+    public void loadStoredConnectInfo(ConnectController connectController) {
+        Properties settings = loadSettingsProperties();
+        String serverAndPort = settings.getProperty(PROPERTIES_SERVER_LITERAL, "");
+        String playerName = settings.getProperty(PROPERTIES_PLAYER_LITERAL, "");
+
+        connectController.setStoredFields(serverAndPort, playerName);
+    }
+
     @FXML
     private void onConnectButtonPressed() {
         if (connectInfo != null) {
@@ -563,10 +585,19 @@ public class TrackerController {
     }
 
     void connect(String url, String slotName, String password) {
+        storeConnectInfo(url, slotName);
         connectModalStage.close();
         connectButton.setDisable(true);
         connectionLabel.setStatus(ConnectionStatusLabel.Status.CONNECTING);
         new ConnectionTask(url, slotName, password).start();
+    }
+
+    private void storeConnectInfo(String serverAndPort, String playerName) {
+        Properties settings = loadSettingsProperties();
+        settings.setProperty(PROPERTIES_SERVER_LITERAL, serverAndPort);
+        settings.setProperty(PROPERTIES_PLAYER_LITERAL, playerName);
+
+        storeSettingsProperties(settings);
     }
 
     void cancelConnectModal() {

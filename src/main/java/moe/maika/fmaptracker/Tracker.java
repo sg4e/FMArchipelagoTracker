@@ -75,6 +75,8 @@ public class Tracker extends Application {
         stage.setOnCloseRequest((e) -> System.exit(0));
         stage.show();
         trackerController.loadFMWorld();
+
+        trackerController.loadStoredConnectInfo(connectController);
     }
 
     public static void main(String[] args) {

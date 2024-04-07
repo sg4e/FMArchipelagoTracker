@@ -50,4 +50,9 @@ public class ConnectController {
     public void setTrackerController(TrackerController trackerController) {
         this.trackerController = trackerController;
     }
+
+    public void setStoredFields(String serverAndPortField, String playerField) {
+        this.serverAndPortField.setText(serverAndPortField);
+        this.playerField.setText(playerField);
+    }
 }
