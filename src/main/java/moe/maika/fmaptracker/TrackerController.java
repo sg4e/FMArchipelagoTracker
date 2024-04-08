@@ -218,12 +218,26 @@ public class TrackerController {
     }
 
     private void updateFarms(Map<Farm, List<Drop>> farms, List<Farm> sortedFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
+        // Find ComboBox selected Farm in the updated sortedFarmList (same Duelist and Duel Rank)
+        Farm selectedFarm = getPreviouslySelectedFarm(sortedFarmList);
         saPowFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("SAPOW", Collections.emptyList()), duelistImages);
         bcdFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("BCD",  Collections.emptyList()), duelistImages);
         saTecFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("SATEC",  Collections.emptyList()), duelistImages);
         duelistBox.getItems().setAll(sortedFarmList);
         farmChangeListener.setFarms(farms);
         duelistBox.setDisable(false);
+        if(selectedFarm != null)
+            duelistBox.getSelectionModel().select(selectedFarm);
+    }
+
+    private Farm getPreviouslySelectedFarm(List<Farm> sortedFarmList) {
+        Farm selectedInput = duelistBox.getValue();
+        if(selectedInput != null) {
+            return sortedFarmList.stream().filter(
+                    farm -> farm.duelist().equals(selectedInput.duelist()) && farm.duelRank().equals(selectedInput.duelRank())
+            ).findFirst().orElse(null);
+        }
+        return null;
     }
 
     public void setSelectedFarm(Farm selected) {
