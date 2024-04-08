@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -225,23 +224,18 @@ public class TrackerController {
         duelistBox.getItems().setAll(sortedFarmList);
         farmChangeListener.setFarms(farms);
         duelistBox.setDisable(false);
-        if (selectedFarm != null)
+        if(selectedFarm != null)
             duelistBox.getSelectionModel().select(selectedFarm);
     }
 
     private Farm getPreviouslySelectedFarm(List<Farm> sortedFarmList) {
-        Farm ret = null;
-
         Farm selectedInput = duelistBox.getValue();
-        if (selectedInput != null) {
-            Optional<Farm> aux = sortedFarmList.stream().filter(
-                    farm -> farm.duelist.equals(selectedInput.duelist) && farm.duelRank.equals(selectedInput.duelRank)
-            ).findFirst();
-            if (aux.isPresent())
-                ret = aux.get();
+        if(selectedInput != null) {
+            return sortedFarmList.stream().filter(
+                    farm -> farm.duelist().equals(selectedInput.duelist()) && farm.duelRank().equals(selectedInput.duelRank())
+            ).findFirst().orElse(null);
         }
-
-        return ret;
+        return null;
     }
 
     public void setSelectedFarm(Farm selected) {
