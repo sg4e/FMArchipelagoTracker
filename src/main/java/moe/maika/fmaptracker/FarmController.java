@@ -77,7 +77,7 @@ public class FarmController {
             if(i < orderedFarms.size()) {
                 Farm farm = orderedFarms.get(i);
                 label.setText(String.format("%s\n%.2f%% (%s from %s)",
-                        farm.duelist().name(),
+                        farm.name(),
                         farm.totalProbability() / 2048d * 100d,
                         farm.missingDrops(),
                         farm.totalDrops()));
