@@ -27,7 +27,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import moe.maika.fmaptracker.TrackerController.Farm;
+import moe.maika.fmaptracker.Farm;
 
 public class FarmController {
     @FXML

@@ -779,11 +779,9 @@ public class TrackerController {
 
     public static record Duelist(int id, String name) {}
 
-    private static record Drop(String cardName, String duelRank, int probability, boolean inLogic) {}
+    public static record Drop(String cardName, String duelRank, int probability, boolean inLogic) {}
 
-    public static record Farm(Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
-
-    private static record Pool(Duelist duelist, String duelRank) {}
+    public static record Pool(Duelist duelist, String duelRank) {}
 
     private class TrackerUpdater extends Thread {
 
