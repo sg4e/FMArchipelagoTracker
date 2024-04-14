@@ -56,6 +56,7 @@ import com.google.gson.JsonElement;
 import gg.archipelago.client.ArchipelagoClient;
 import gg.archipelago.client.Print.APPrint;
 import gg.archipelago.client.parts.NetworkItem;
+import java.util.Objects;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -157,7 +158,7 @@ public class TrackerController {
                     return null;
                 }
                 return String.format("%s %s: %.2f%% (Missing: %s Total: %s)",
-                        object.duelist().name(),
+                        object.name(),
                         object.duelRank(),
                         object.totalProbability() / 2048d * 100d,
                         object.missingDrops(),
@@ -781,7 +782,7 @@ public class TrackerController {
 
     private static record Drop(String cardName, String duelRank, int probability, boolean inLogic) {}
 
-    public static record Farm(Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
+    public static record Farm(String name, Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
 
     private static record Pool(Duelist duelist, String duelRank) {}
 
@@ -878,7 +879,8 @@ public class TrackerController {
                         for(Map.Entry<String, List<Drop>> duelRankEntry : duelRankToDrops.entrySet()) {
                             Pool pool = new Pool(duelist, duelRankEntry.getKey());
                             int totalCardCount = poolToTotalCardCount.get(pool);
-                            Farm farm = new Farm(duelist,
+                            Farm farm = new Farm(duelist.name(),
+                                    duelist,
                                     duelRankEntry.getKey(),
                                     duelRankEntry.getValue().stream().mapToInt(Drop::probability).sum(),
                                     (int)duelRankEntry.getValue().stream().count(),
@@ -886,14 +888,43 @@ public class TrackerController {
                             farms.put(farm, duelRankEntry.getValue());
                         }
                     }
-                    Map<String, List<Farm>> topFarmsForDuelRank = farms.keySet().stream().collect(
+                    // coalesce identical drop pools
+                    Map<Integer, List<Farm>> equalDropPools = new HashMap<>();
+                    farms.entrySet().forEach(entry -> {
+                        int hash = entry.getValue().hashCode();
+                        List<Farm> equalFarms = equalDropPools.computeIfAbsent(hash, key -> new ArrayList<>());
+                        if(equalFarms.isEmpty())
+                            equalFarms.add(entry.getKey());
+                        else {
+                            Farm otherFarm = equalFarms.getFirst();
+                            // check for no hash collision
+                            if(Objects.equals(farms.get(entry.getKey()), farms.get(otherFarm))) {
+                                equalFarms.add(entry.getKey());
+                            }
+                            // this doesn't account for if there are two separate equal groups of farms in the same collision. Oh well
+                        }
+                    });
+                    Map<Farm, List<Drop>> coalescedFarms = equalDropPools.entrySet().stream().collect(Collectors.toMap(entry -> {
+                        List<Farm> equalFarms = entry.getValue();
+                        if(equalFarms.size() <= 1) {
+                            return equalFarms.getFirst();
+                        }
+                        else {
+                            equalFarms.sort((f1, f2) -> f1.duelist().id() - f2.duelist().id());
+                            String name = equalFarms.stream().map(Farm::name).collect(Collectors.joining("/"));
+                            Farm first = equalFarms.getFirst();
+                            return new Farm(name, first.duelist(), first.duelRank(), 
+                                    first.totalProbability(), first.missingDrops(), first.totalDrops());
+                        }
+                    }, entry -> farms.get(entry.getValue().getFirst())));
+                    Map<String, List<Farm>> topFarmsForDuelRank = coalescedFarms.keySet().stream().collect(
                             Collectors.groupingBy(Farm::duelRank));
                     for(Map.Entry<String, List<Farm>> entry : topFarmsForDuelRank.entrySet()) {
                         entry.getValue().sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
                     }
-                    List<Farm> sortedFarmList = new ArrayList<>(farms.keySet());
+                    List<Farm> sortedFarmList = new ArrayList<>(coalescedFarms.keySet());
                     sortedFarmList.sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
-                    Platform.runLater(() -> updateFarms(farms, sortedFarmList, topFarmsForDuelRank));
+                    Platform.runLater(() -> updateFarms(coalescedFarms, sortedFarmList, topFarmsForDuelRank));
                     sleep(SLEEP_BETWEEN_UI_UPDATE_MILLIS);
                 }
                 catch(Exception e) {
