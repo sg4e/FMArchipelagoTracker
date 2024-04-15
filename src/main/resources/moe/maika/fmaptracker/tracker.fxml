@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="moe.maika.fmaptracker.TrackerController">
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="moe.maika.fmaptracker.TrackerController">
    <children>
       <HBox alignment="CENTER_RIGHT" spacing="10.0">
          <children>
@@ -30,7 +30,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </HBox>
-      <GridPane fx:id="farmPane" vgap="5.0" VBox.vgrow="ALWAYS">
+      <GridPane fx:id="farmPane" vgap="5.0" VBox.vgrow="NEVER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -40,7 +40,7 @@
           <RowConstraints vgrow="ALWAYS" />
         </rowConstraints>
          <VBox.margin>
-            <Insets left="5.0" right="5.0" />
+            <Insets bottom="10.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </GridPane>
       <ComboBox fx:id="duelistBox" disable="true" prefHeight="25.0" prefWidth="380.0" />
