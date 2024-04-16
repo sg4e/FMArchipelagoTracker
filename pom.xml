@@ -122,6 +122,7 @@
                     <!-- <bundlesList>
                         <list>moe.maika.fmaptracker</list>
                     </bundlesList> -->
+                    <nativeImageArgs>-Dpolyglotimpl.DisableVersionChecks=true</nativeImageArgs>
                     <reflectionList>
                         <list>moe.maika.fmaptracker.TrackerController</list>
                         <list>moe.maika.fmaptracker.ConnectController</list>
