@@ -279,6 +279,23 @@ public class TrackerController {
 
     public void setSelectedFarm(Farm selected) {
         duelistBox.getSelectionModel().select(selected);
+        setSelectedTab(selected.duelRank());
+    }
+
+    public void setSelectedTab(String duelRank) {
+        Tab tab = null;
+        switch(duelRank.toUpperCase()) {
+            case "SAPOW":
+            case "SA POW": tab = sapowTab; break;
+            case "BCD": tab = bcdTab; break;
+            case "SATEC":
+            case "SA TEC": tab = satecTab; break;
+        }
+        if(tab == null) {
+            log.warning("Unrecognized duel rank: " + duelRank);
+            return;
+        }
+        duelRankTabPane.getSelectionModel().select(tab);
     }
 
     public Image getIconForApplication() {
