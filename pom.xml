@@ -122,6 +122,9 @@
                     <!-- <bundlesList>
                         <list>moe.maika.fmaptracker</list>
                     </bundlesList> -->
+                    <!-- This is required because there's no way to force CI to use a specific minor version of native-image. The following error was given: -->
+                    <!-- Your Java runtime '21.0.3+7-LTS-jvmci-23.1-b37' with native-image feature version '23.1.3' is incompatible with polyglot version '23.1.2' -->
+                    <nativeImageArgs>-Dpolyglotimpl.DisableVersionChecks=true</nativeImageArgs>
                     <reflectionList>
                         <list>moe.maika.fmaptracker.TrackerController</list>
                         <list>moe.maika.fmaptracker.ConnectController</list>
