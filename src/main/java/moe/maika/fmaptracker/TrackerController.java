@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -44,6 +45,7 @@ import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
+import org.controlsfx.control.SearchableComboBox;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Source;
@@ -56,7 +58,6 @@ import com.google.gson.JsonElement;
 import gg.archipelago.client.ArchipelagoClient;
 import gg.archipelago.client.Print.APPrint;
 import gg.archipelago.client.parts.NetworkItem;
-import java.util.Objects;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -68,7 +69,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -94,7 +94,7 @@ public class TrackerController {
     @FXML
     private Button connectButton;
     @FXML
-    private ComboBox<Farm> duelistBox;
+    private SearchableComboBox<Farm> duelistBox;
     @FXML
     private TableView<Drop> dropTable;
     @FXML

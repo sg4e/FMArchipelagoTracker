@@ -76,9 +76,11 @@
             <artifactId>bcpg-jdk18on</artifactId>
             <version>1.77</version>
         </dependency>
-
-
-
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.1</version>
+        </dependency>
         <dependency>
             <groupId>org.graalvm.polyglot</groupId>
             <artifactId>polyglot</artifactId>
@@ -133,6 +135,7 @@
                         <list>javafx.scene.layout.GridPane</list>
                         <list>javafx.scene.control.TableView</list>
                         <list>javafx.scene.control.TableColumn</list>
+                        <list>org.controlsfx.control.SearchableComboBox</list>
                         <!-- All AP classes. I don't know which ones are instantiated, so add them all -->
                         <list>gg.archipelago.client.ArchipelagoClient</list>
                         <list>gg.archipelago.client.ArchipelagoWebSocket</list>
