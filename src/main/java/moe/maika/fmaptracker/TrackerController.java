@@ -262,7 +262,7 @@ public class TrackerController {
                 String rank = entry.getKey();
                 Tab tab = entry.getValue();
                 Farm duelRankFarm = selectedFarm.getFarm(rank);
-                tab.setText(String.format("%s (%s: %.0f%%)",
+                tab.setText(String.format("%s (%s @ %.0f%%)",
                         backendToFrontendDuelRank.get(rank), duelRankFarm.missingDrops(), duelRankFarm.probabilityAsPercentage()));
             });
             // update table
