@@ -133,6 +133,8 @@
                         <list>javafx.scene.layout.GridPane</list>
                         <list>javafx.scene.control.TableView</list>
                         <list>javafx.scene.control.TableColumn</list>
+                        <list>javafx.scene.control.Tab</list>
+                        <list>javafx.scene.control.TabPane</list>
                         <!-- All AP classes. I don't know which ones are instantiated, so add them all -->
                         <list>gg.archipelago.client.ArchipelagoClient</list>
                         <list>gg.archipelago.client.ArchipelagoWebSocket</list>

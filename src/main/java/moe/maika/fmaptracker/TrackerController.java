@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Function;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -56,7 +58,6 @@ import com.google.gson.JsonElement;
 import gg.archipelago.client.ArchipelagoClient;
 import gg.archipelago.client.Print.APPrint;
 import gg.archipelago.client.parts.NetworkItem;
-import java.util.Objects;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -71,6 +72,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
@@ -94,7 +97,7 @@ public class TrackerController {
     @FXML
     private Button connectButton;
     @FXML
-    private ComboBox<Farm> duelistBox;
+    private ComboBox<DisplayFarm> duelistBox;
     @FXML
     private TableView<Drop> dropTable;
     @FXML
@@ -107,9 +110,26 @@ public class TrackerController {
     private TableColumn<Drop, String> inLogicColumn;
     @FXML
     private GridPane farmPane;
+    @FXML
+    private Tab sapowTab;
+    @FXML
+    private Tab bcdTab;
+    @FXML
+    private Tab satecTab;
+    @FXML
+    private TabPane duelRankTabPane;
 
     private FarmController saPowFarm, bcdFarm, saTecFarm;
     private final Image[] duelistImages;
+    private Map<String, Tab> duelRankBackendToTab;
+    private static final Map<String, String> backendToFrontendDuelRank;
+    static {
+        Map<String, String> map = new HashMap<>();
+        map.put("SAPOW", "SA POW");
+        map.put("BCD", "BCD");
+        map.put("SATEC", "SA TEC");
+        backendToFrontendDuelRank = Collections.unmodifiableMap(map);
+    }
 
     private ConnectionStatusLabel connectionLabel;
 
@@ -151,22 +171,22 @@ public class TrackerController {
         duelRankColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().duelRank()));
         probabilityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().probability()).asObject());
         inLogicColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().inLogic() ? "Yes" : "No"));
-        duelistBox.setConverter(new StringConverter<Farm>() {
+        duelistBox.setConverter(new StringConverter<DisplayFarm>() {
             @Override
-            public String toString(Farm object) {
-                if(object == null) {
+            public String toString(DisplayFarm farm) {
+                if(farm == null) {
                     return null;
                 }
-                return String.format("%s %s: %.2f%% (Missing: %s Total: %s)",
-                        object.name(),
-                        object.duelRank(),
-                        object.totalProbability() / 2048d * 100d,
-                        object.missingDrops(),
-                        object.totalDrops());
+                return String.format("%s (Missing: %s Ranks: %s, %s, %s)",
+                        farm.getName(),
+                        farm.getTotalMissing(),
+                        farm.getMissing("SAPOW"),
+                        farm.getMissing("BCD"),
+                        farm.getMissing("SATEC"));
             }
 
             @Override
-            public Farm fromString(String string) {
+            public DisplayFarm fromString(String string) {
                 // Implement this method if needed (e.g., for two-way binding)
                 return null;
             }
@@ -182,6 +202,11 @@ public class TrackerController {
         catch(IOException e) {
             log.log(Level.SEVERE, "Failed to make farm UI", e);
         }
+        // make map of tabs
+        duelRankBackendToTab = new HashMap<>();
+        duelRankBackendToTab.put("SAPOW", sapowTab);
+        duelRankBackendToTab.put("BCD", bcdTab);
+        duelRankBackendToTab.put("SATEC", satecTab);
         duelistBox.getSelectionModel().selectedItemProperty().addListener(farmChangeListener);
         probabilityColumn.setSortType(TableColumn.SortType.DESCENDING);
         dropTable.getSortOrder().add(probabilityColumn);
@@ -197,7 +222,7 @@ public class TrackerController {
         return controller;
     }
 
-    private class FarmChangeListener implements ChangeListener<Farm> {
+    private class FarmChangeListener implements ChangeListener<DisplayFarm> {
 
         Map<Farm, List<Drop>> farms;
 
@@ -206,43 +231,96 @@ public class TrackerController {
         }
 
         @Override
-        public void changed(ObservableValue<? extends Farm> obs, Farm oldVal, Farm newVal) {
-            if(newVal == null) {
-                log.warning("Farm was null when setting selection model");
-            }
+        public void changed(ObservableValue<? extends DisplayFarm> obs, DisplayFarm oldVal, DisplayFarm newVal) {
+            updateTable();
+        }
+
+        public void updateTable() {
+            DisplayFarm selectedFarm = duelistBox.getSelectionModel().getSelectedItem();
+            if(farms == null)
+                return;
+            if(selectedFarm == null)
+                return;
+            Tab selectedTab = duelRankTabPane.getSelectionModel().getSelectedItem();
+            String duelRank;
+            if(selectedTab == sapowTab)
+                duelRank = "SAPOW";
+            else if(selectedTab == bcdTab)
+                duelRank = "BCD";
+            else if(selectedTab == satecTab)
+                duelRank = "SATEC";
             else {
-                dropTable.getItems().setAll(farms.get(newVal));
-                dropTable.sort();
+                log.warning("Unrecognized tab: " + selectedTab.getText());
+                return;
             }
+            List<Drop> filteredDrops = farms.entrySet().stream()
+                    .filter(entry -> entry.getKey().duelist() == selectedFarm.getDuelist())
+                    .map(entry -> entry.getValue()).flatMap(List::stream)
+                    .collect(Collectors.toList());
+            // update tabs
+            duelRankBackendToTab.entrySet().forEach(entry -> {
+                String rank = entry.getKey();
+                Tab tab = entry.getValue();
+                Farm duelRankFarm = selectedFarm.getFarm(rank);
+                tab.setText(String.format("%s (%s @ %.0f%%)",
+                        backendToFrontendDuelRank.get(rank), duelRankFarm.missingDrops(), duelRankFarm.probabilityAsPercentage()));
+            });
+            // update table
+            dropTable.getItems().setAll(filteredDrops.stream().filter(drop -> duelRank.equals(drop.duelRank())).collect(Collectors.toList()));
+            dropTable.sort();
         }
 
     }
 
-    private void updateFarms(Map<Farm, List<Drop>> farms, List<Farm> sortedFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
+    @FXML
+    private void onDuelRankTabSelectedChanged() {
+        farmChangeListener.updateTable();
+    }
+
+    private void updateFarms(Map<Farm, List<Drop>> farms, List<DisplayFarm> acrossDuelRanksFarmList, Map<String, List<Farm>> topFarmsForDuelRank) {
         // Find ComboBox selected Farm in the updated sortedFarmList (same Duelist and Duel Rank)
-        Farm selectedFarm = getPreviouslySelectedFarm(sortedFarmList);
+        DisplayFarm selectedFarm = getPreviouslySelectedFarm(acrossDuelRanksFarmList);
         saPowFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("SAPOW", Collections.emptyList()), duelistImages);
         bcdFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("BCD",  Collections.emptyList()), duelistImages);
         saTecFarm.updateTopFarms(topFarmsForDuelRank.getOrDefault("SATEC",  Collections.emptyList()), duelistImages);
-        duelistBox.getItems().setAll(sortedFarmList);
+        duelistBox.getItems().setAll(acrossDuelRanksFarmList);
         farmChangeListener.setFarms(farms);
         duelistBox.setDisable(false);
+        duelRankTabPane.setDisable(false);
         if(selectedFarm != null)
             duelistBox.getSelectionModel().select(selectedFarm);
     }
 
-    private Farm getPreviouslySelectedFarm(List<Farm> sortedFarmList) {
-        Farm selectedInput = duelistBox.getValue();
+    private DisplayFarm getPreviouslySelectedFarm(List<DisplayFarm> sortedFarmList) {
+        DisplayFarm selectedInput = duelistBox.getValue();
         if(selectedInput != null) {
             return sortedFarmList.stream().filter(
-                    farm -> farm.duelist().equals(selectedInput.duelist()) && farm.duelRank().equals(selectedInput.duelRank())
+                    farm -> farm.getDuelist().equals(selectedInput.getDuelist())
             ).findFirst().orElse(null);
         }
         return null;
     }
 
     public void setSelectedFarm(Farm selected) {
-        duelistBox.getSelectionModel().select(selected);
+        duelistBox.getSelectionModel().select(duelistBox.getItems()
+                .filtered(displayFarm -> displayFarm.getDuelist() == selected.duelist()).getFirst());
+        setSelectedTab(selected.duelRank());
+    }
+
+    public void setSelectedTab(String duelRank) {
+        Tab tab = null;
+        switch(duelRank.toUpperCase()) {
+            case "SAPOW":
+            case "SA POW": tab = sapowTab; break;
+            case "BCD": tab = bcdTab; break;
+            case "SATEC":
+            case "SA TEC": tab = satecTab; break;
+        }
+        if(tab == null) {
+            log.warning("Unrecognized duel rank: " + duelRank);
+            return;
+        }
+        duelRankTabPane.getSelectionModel().select(tab);
     }
 
     public Image getIconForApplication() {
@@ -782,9 +860,58 @@ public class TrackerController {
 
     private static record Drop(String cardName, String duelRank, int probability, boolean inLogic) {}
 
-    public static record Farm(String name, Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {}
+    public static record Farm(String name, Duelist duelist, String duelRank, int totalProbability, int missingDrops, int totalDrops) {
+        public double probabilityAsDouble() {
+            return totalProbability / 2048d;
+        }
+
+        public double probabilityAsPercentage() {
+            return probabilityAsDouble() * 100d;
+        }
+    }
 
     private static record Pool(Duelist duelist, String duelRank) {}
+
+    private static class DisplayFarm {
+        private final Map<String, Farm> farms;
+        private final String name;
+        private final Duelist duelist;
+        private final int totalMissing;
+
+        public DisplayFarm(Collection<Farm> farmsAllDuelRanks, int totalMissing) {
+            Farm first = farmsAllDuelRanks.stream().findFirst().get();
+            name = first.name();
+            duelist = first.duelist();
+            this.totalMissing = totalMissing;
+            farms = farmsAllDuelRanks.stream().collect(Collectors.toMap(f -> f.duelRank(), Function.identity()));
+        }
+
+        /**
+         * This value may be null, if the farm for that duel rank is empty.
+         * @param duelRank
+         * @return
+         */
+        public Farm getFarm(String duelRank) {
+            return farms.get(duelRank);
+        }
+
+        public int getMissing(String duelRank) {
+            Farm farm = farms.get(duelRank);
+            return farm == null ? 0 : farm.missingDrops();
+        }
+
+        public Duelist getDuelist() {
+            return duelist;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getTotalMissing() {
+            return totalMissing;
+        }
+    }
 
     private class TrackerUpdater extends Thread {
 
@@ -922,9 +1049,16 @@ public class TrackerController {
                     for(Map.Entry<String, List<Farm>> entry : topFarmsForDuelRank.entrySet()) {
                         entry.getValue().sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
                     }
-                    List<Farm> sortedFarmList = new ArrayList<>(coalescedFarms.keySet());
-                    sortedFarmList.sort((f1, f2) -> f2.totalProbability() - f1.totalProbability());
-                    Platform.runLater(() -> updateFarms(coalescedFarms, sortedFarmList, topFarmsForDuelRank));
+                    List<DisplayFarm> acrossDuelRanksFarms = coalescedFarms.keySet().stream()
+                            .collect(Collectors.groupingBy(farm -> farm.duelist())).entrySet().stream()
+                            .map(entry -> {
+                                List<Farm> dropFarms = entry.getValue();
+                                int missingDrops = (int) dropFarms.stream().map(farm -> coalescedFarms.get(farm))
+                                        .flatMap(List::stream).map(Drop::cardName).distinct().count();
+                                return new DisplayFarm(dropFarms, missingDrops);
+                            }).collect(Collectors.toList());
+                    acrossDuelRanksFarms.sort((f1, f2) -> f1.getDuelist().id() - f2.getDuelist().id());
+                    Platform.runLater(() -> updateFarms(coalescedFarms, acrossDuelRanksFarms, topFarmsForDuelRank));
                     sleep(SLEEP_BETWEEN_UI_UPDATE_MILLIS);
                 }
                 catch(Exception e) {
