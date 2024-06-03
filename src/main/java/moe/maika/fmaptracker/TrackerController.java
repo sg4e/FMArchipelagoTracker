@@ -262,8 +262,11 @@ public class TrackerController {
                 String rank = entry.getKey();
                 Tab tab = entry.getValue();
                 Farm duelRankFarm = selectedFarm.getFarm(rank);
+                boolean empty = duelRankFarm == null;
                 tab.setText(String.format("%s (%s @ %.0f%%)",
-                        backendToFrontendDuelRank.get(rank), duelRankFarm.missingDrops(), duelRankFarm.probabilityAsPercentage()));
+                        backendToFrontendDuelRank.get(rank),
+                        empty ? 0 : duelRankFarm.missingDrops(),
+                        empty ? 0 : duelRankFarm.probabilityAsPercentage()));
             });
             // update table
             dropTable.getItems().setAll(filteredDrops.stream().filter(drop -> duelRank.equals(drop.duelRank())).collect(Collectors.toList()));
