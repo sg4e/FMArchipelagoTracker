@@ -20,6 +20,8 @@ package moe.maika.fmaptracker;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 public class ConnectController {
 
@@ -45,6 +47,12 @@ public class ConnectController {
         serverAndPortField.clear();
         playerField.clear();
         passwordField.clear();
+    }
+
+    @FXML
+    private void onTextEntry(KeyEvent event) {
+        if(event.getCode() == KeyCode.ENTER)
+            onConnect();
     }
 
     public void setTrackerController(TrackerController trackerController) {
