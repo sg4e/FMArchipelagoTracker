@@ -357,8 +357,11 @@ public class TrackerController {
             apProgramDataLocation = selectedFile.getAbsolutePath();
         }
         settings.setProperty("APProgramData", apProgramDataLocation);
-        Path fmWorldPath = Paths.get(apProgramDataLocation, "lib", "worlds", FM_AP_WORLD_FILENAME);
-        if(!fmWorldPath.toFile().exists()) {
+        Path possibleFmWorldPath = Paths.get(apProgramDataLocation, "lib", "worlds", FM_AP_WORLD_FILENAME);
+        if(!possibleFmWorldPath.toFile().exists()) {
+            possibleFmWorldPath = Paths.get(apProgramDataLocation, "custom_worlds", FM_AP_WORLD_FILENAME);
+        }
+        if(!possibleFmWorldPath.toFile().exists()) {
             showAlertDialog(String.format("There is no %s in your Archipelago installation. Please download a compatible version from " + 
                             "the official Releases page and place it inside \"lib/worlds\" in your Archipelago installation, then relaunch the tracker:", FM_AP_WORLD_FILENAME), 
                     String.format("No %s in AP installation", FM_AP_WORLD_FILENAME),
@@ -367,6 +370,7 @@ public class TrackerController {
                     FM_AP_WORLD_RELEASES_URL);
             System.exit(0);
         }
+        Path fmWorldPath = possibleFmWorldPath;
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         final Properties settingsForSubthread = settings;
         executor.submit(() -> {
