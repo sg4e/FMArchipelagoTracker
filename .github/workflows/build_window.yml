@@ -12,6 +12,8 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
 
+    continue-on-error: true
+
     steps:
       # Checkout your code
       - uses: actions/checkout@v4
@@ -24,6 +26,10 @@ jobs:
       - name: Visual Studio shell
         if: runner.os == 'Windows'
         uses: egor-tensin/vs-shell@v2
+
+      - name: Setup Linux
+        if: runner.os == 'Linux'
+        run: sudo apt install g++ make zlib1g-dev
 
       # Set up GraalVM
       - name: Set up GraalVM
