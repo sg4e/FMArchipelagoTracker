@@ -85,6 +85,16 @@
   "name":"com.sun.glass.ui.Screen"
 },
 {
+  "name":"com.sun.glass.ui.win.WinDnDClipboard"
+},
+{
+  "name":"com.sun.glass.ui.win.WinGestureSupport"
+},
+{
+  "name":"com.sun.glass.ui.win.WinPlatformFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.javafx.font.directwrite.DWFactory",
   "methods":[{"name":"getFactory","parameterTypes":[] }]
 },
@@ -296,6 +306,10 @@
   "methods":[{"name":"getModule","parameterTypes":[] }, {"name":"getRecordComponents","parameterTypes":[] }, {"name":"isRecord","parameterTypes":[] }]
 },
 {
+  "name":"java.lang.ClassLoader",
+  "fields":[{"name":"classLoaderValueMap"}]
+},
+{
   "name":"java.lang.Deprecated",
   "queryAllPublicMethods":true
 },
@@ -418,9 +432,6 @@
 },
 {
   "name":"java.security.MessageDigestSpi"
-},
-{
-  "name":"java.security.SecureRandomParameters"
 },
 {
   "name":"java.security.cert.PKIXRevocationChecker"
@@ -618,6 +629,9 @@
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setFitHeight","parameterTypes":["double"] }, {"name":"setFitWidth","parameterTypes":["double"] }, {"name":"setPreserveRatio","parameterTypes":["boolean"] }]
 },
 {
+  "name":"javafx.scene.input.Clipboard"
+},
+{
   "name":"javafx.scene.layout.BorderPane",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -744,6 +758,9 @@
   "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
+  "name":"jdk.internal.misc.Unsafe"
+},
+{
   "name":"jdk.management.jfr.ConfigurationInfo",
   "queryAllPublicMethods":true
 },
@@ -772,7 +789,7 @@
   "name":"moe.maika.fmaptracker.ConnectController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"onConnect","parameterTypes":[] }, {"name":"onCancel","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"onCancel","parameterTypes":[] }, {"name":"onConnect","parameterTypes":[] }]
 },
 {
   "name":"moe.maika.fmaptracker.FarmController",
@@ -867,6 +884,14 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.rsa.DigestSignatureSpi$SHA256",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.rsa.KeyFactorySpi",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"org.bouncycastle.jcajce.provider.digest.Blake2b$Mappings",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -928,6 +953,10 @@
 },
 {
   "name":"org.bouncycastle.jcajce.provider.digest.SHA224$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA256$Digest",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -1163,6 +1192,9 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"org.graalvm.home.impl.DefaultHomeFinder"
+},
+{
   "name":"org.graalvm.polyglot.io.IOHelper",
   "fields":[{"name":"ACCESS"}]
 },
@@ -1241,10 +1273,6 @@
 },
 {
   "name":"sun.security.provider.JavaKeyStore$JKS",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.MD5",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
