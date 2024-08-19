@@ -17,6 +17,7 @@ How to build and run from source:
 3. Run (double-click) one of the following scripts for your operating system:
     - For Windows, use `run_windows.bat`
     - For Linux and macOS, use `run_linux_macos.sh`
+
 If the script execution fails, you may need to open the script files and edit the `GRAALVM_HOME` and `JAVA_HOME` variables to be absolute paths (e.g. `C:\Users\me\Documents\FMArchipelagoTracker\bellsoft-liberica-vm-full-openjdk22-24.0.2`).
 
 ## Versioning
