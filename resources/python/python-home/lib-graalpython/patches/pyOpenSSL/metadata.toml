@@ -1,3 +1,0 @@
-[[rules]]
-# Newer versions require newer cryptography which we don't support because of rust dependency
-version = "< 22.0.0"

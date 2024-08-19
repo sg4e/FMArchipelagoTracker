@@ -1,3 +1,0 @@
-[[rules]]
-version = '== 2.10.4'
-patch = 'pybind11-2.10.4.patch'

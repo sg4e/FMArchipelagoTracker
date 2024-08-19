@@ -18,28 +18,25 @@ jobs:
       - name: Visual Studio shell
         uses: egor-tensin/vs-shell@v2
 
-      # Set up GraalVM for non-Maven projects
+      # Set up GraalVM
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
-          distribution: 'graalvm'
+          java-version: '22'
+          distribution: 'liberica'
+          java-package: 'jdk+fx'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Create a staging directory where the binary will be copied into
       - name: Make staging directory
         run: mkdir staging
 
-      # Build your project using Maven with GraalVM
-      # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
-      - name: Gluon Build
-        run: mvn gluonfx:build
+      - name: Build
+        run: gradlew.bat nativeCompile
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
         run: |
-          cp -r target/gluonfx/x86_64-windows/FMAchipelagoTracker.exe staging
-          cp -r resources staging
+          cp -r build/native/nativeCompile/* staging
           cp LICENSE.txt staging
 
       # Upload the staging directory as a build artifact. You will be able to download this after the build finishes.

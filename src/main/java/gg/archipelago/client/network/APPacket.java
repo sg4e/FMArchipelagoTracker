@@ -9,6 +9,8 @@ public class APPacket {
     @SerializedName("cmd")
     private APPacketType cmd;
 
+    public APPacket() {}
+
     public APPacket(APPacketType cmd) {
         this.cmd = cmd;
     }
