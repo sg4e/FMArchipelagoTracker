@@ -1,5 +1,26 @@
 {
   "types":[
+    {
+      "name":"gg.archipelago.client.parts.DataPackage"
+    },
+    {
+      "name":"gg.archipelago.client.parts.Game"
+    },
+    {
+      "name":"java.lang.Long"
+    },
+    {
+      "name":"java.lang.Number"
+    },
+    {
+      "name":"java.util.HashMap"
+    },
+    {
+      "name":"java.util.LinkedHashMap"
+    },
+    {
+      "name":"java.lang.String"
+    }
   ],
   "lambdaCapturingTypes":[
   ],

@@ -1,4 +1,0 @@
-[[rules]]
-# Disable optional C ext. Upstreamable
-patch = 'lazy-object-proxy.patch'
-dist-type = 'sdist'

@@ -1,52 +1,69 @@
-name: Build for Windows (x64)
+name: Build native
 on: [push, pull_request]
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build for Windows (x64)
-    runs-on: windows-latest
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    continue-on-error: true
+
     steps:
       # Checkout your code
       - uses: actions/checkout@v4
 
       # Setup the Windows build environment
       - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
         uses: microsoft/setup-msbuild@v2
 
       - name: Visual Studio shell
+        if: runner.os == 'Windows'
         uses: egor-tensin/vs-shell@v2
 
-      # Set up GraalVM for non-Maven projects
+      - name: Setup Linux
+        if: runner.os == 'Linux'
+        run: sudo apt install g++ make zlib1g-dev libgl1-mesa-dev libxtst-dev libharfbuzz-dev libgtk-3-dev libpango1.0-dev libatk1.0-dev
+
+      # Set up GraalVM
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
-          distribution: 'graalvm'
+          java-version: '22'
+          distribution: 'liberica'
+          java-package: 'jdk+fx'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Create a staging directory where the binary will be copied into
       - name: Make staging directory
         run: mkdir staging
 
-      # Build your project using Maven with GraalVM
-      # The desktop profile is used, which means a native build will be created for the host platform (in this case Linux) itself.
-      - name: Gluon Build
-        run: mvn gluonfx:build
+      - name: Build on Windows
+        if: runner.os == 'Windows'
+        run: .\gradlew.bat nativeCompile
+
+      - name: Linux
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x gradlew
+          ./gradlew nativeCompile
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
         run: |
-          cp -r target/gluonfx/x86_64-windows/FMAchipelagoTracker.exe staging
-          cp -r resources staging
+          cp -r build/native/nativeCompile/* staging
           cp LICENSE.txt staging
 
       # Upload the staging directory as a build artifact. You will be able to download this after the build finishes.
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: windows-x64
+          name: ${{ matrix.os }}
           path: staging
 
   create-release:
@@ -60,8 +77,11 @@ jobs:
         with:
           path: .
 
-      - name: Zip artifacts
-        run: zip -r FMArchipelagoTracker-windows.zip windows-x64
+      - name: Zip Windows artifacts
+        run: zip -r FMArchipelagoTracker-windows.zip windows-latest
+  
+      - name: Tar Linux artifacts
+        run: tar -cjf FMArchipelagoTracker-linux.tar.bz2 ubuntu-latest
 
       - name: Publish release
         uses: softprops/action-gh-release@v1
@@ -69,11 +89,13 @@ jobs:
           fail_on_unmatched_files: true
           prerelease: false
           draft: false
-          files: FMArchipelagoTracker-windows.zip
+          files: |
+            FMArchipelagoTracker-windows.zip
+            FMArchipelagoTracker-linux.tar.bz2
           generate_release_notes: true
           body: |
-            Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+            Windows and Linux builds (x64) of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running on Windows, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 
-            Linux and macOS operating systems are supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
+            The macOS operating system is supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
 
             The latest `apworld` for Archipelago is available at [https://github.com/sg4e/Archipelago/releases](https://github.com/sg4e/Archipelago/releases).

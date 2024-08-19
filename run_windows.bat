@@ -1,4 +1,4 @@
-set GRAALVM_HOME=graalvm-jdk
-set JAVA_HOME=graalvm-jdk
+set GRAALVM_HOME=bellsoft-liberica-vm-full-openjdk22-24.0.2
+set JAVA_HOME=bellsoft-liberica-vm-full-openjdk22-24.0.2
 
-mvnw.cmd gluonfx:run
+gradlew.bat run

@@ -1,3 +1,0 @@
-[[rules]]
-version = '== 3.4.7'
-patch = 'cryptography-3.4.7.patch'
