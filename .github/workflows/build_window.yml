@@ -31,7 +31,7 @@ jobs:
         run: mkdir staging
 
       - name: Build
-        run: gradlew.bat nativeCompile
+        run: .\gradlew.bat nativeCompile
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
