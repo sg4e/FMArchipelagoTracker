@@ -1,21 +1,28 @@
-name: Build for Windows (x64)
+name: Build for Windows, macOS, and Linux
 on: [push, pull_request]
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build for Windows (x64)
-    runs-on: windows-latest
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
     steps:
       # Checkout your code
       - uses: actions/checkout@v4
 
       # Setup the Windows build environment
       - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
         uses: microsoft/setup-msbuild@v2
 
       - name: Visual Studio shell
+        if: runner.os == 'Windows'
         uses: egor-tensin/vs-shell@v2
 
       # Set up GraalVM
@@ -30,8 +37,15 @@ jobs:
       - name: Make staging directory
         run: mkdir staging
 
-      - name: Build
+      - name: Build on Windows
+        if: runner.os == 'Windows'
         run: .\gradlew.bat nativeCompile
+
+      - name: Build on macOS/Linux
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x gradlew
+          ./gradlew nativeCompile
 
       # Copy the native binary to the staging directory
       - name: Copy native image to staging
@@ -43,7 +57,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: windows-x64
+          name: ${{ matrix.os }}
           path: staging
 
   create-release:
@@ -60,13 +74,25 @@ jobs:
       - name: Zip artifacts
         run: zip -r FMArchipelagoTracker-windows.zip windows-x64
 
+      - name: Zip Windows artifacts
+        run: zip -r FMArchipelagoTracker-windows.zip windows-latest
+  
+      - name: Zip macOS artifacts
+        run: zip -r FMArchipelagoTracker-macOS.zip macos-latest
+  
+      - name: Zip Linux artifacts
+        run: zip -r FMArchipelagoTracker-linux.zip ubuntu-latest
+
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
           fail_on_unmatched_files: true
           prerelease: false
           draft: false
-          files: FMArchipelagoTracker-windows.zip
+          files: |
+            FMArchipelagoTracker-windows.zip
+            FMArchipelagoTracker-macOS.zip
+            FMArchipelagoTracker-linux.zip
           generate_release_notes: true
           body: |
             Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
