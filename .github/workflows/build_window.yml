@@ -22,7 +22,7 @@ jobs:
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '22.0.2'
+          java-version: '22'
           distribution: 'liberica'
           java-package: 'jdk+fx'
           github-token: ${{ secrets.GITHUB_TOKEN }}
