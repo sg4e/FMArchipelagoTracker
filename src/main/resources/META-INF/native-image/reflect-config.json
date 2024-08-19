@@ -85,16 +85,6 @@
   "name":"com.sun.glass.ui.Screen"
 },
 {
-  "name":"com.sun.glass.ui.win.WinDnDClipboard"
-},
-{
-  "name":"com.sun.glass.ui.win.WinGestureSupport"
-},
-{
-  "name":"com.sun.glass.ui.win.WinPlatformFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.javafx.font.directwrite.DWFactory",
   "methods":[{"name":"getFactory","parameterTypes":[] }]
 },
