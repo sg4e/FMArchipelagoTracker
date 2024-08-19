@@ -32,22 +32,6 @@ dependencies {
     implementation 'org.bouncycastle:bcpg-jdk18on:1.77'
     implementation 'org.graalvm.polyglot:polyglot:24.0.2'
     implementation 'org.graalvm.polyglot:python-community:24.0.2'
-
-    //cross-platform runtimes
-    runtimeOnly "org.openjfx:javafx-base:$javafx.version:win"
-    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:win"
-    runtimeOnly "org.openjfx:javafx-controls:$javafx.version:win"
-    runtimeOnly "org.openjfx:javafx-fxml:$javafx.version:win"
-
-    runtimeOnly "org.openjfx:javafx-base:$javafx.version:linux"
-    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:linux"
-    runtimeOnly "org.openjfx:javafx-controls:$javafx.version:linux"
-    runtimeOnly "org.openjfx:javafx-fxml:$javafx.version:linux"
-
-    runtimeOnly "org.openjfx:javafx-base:$javafx.version:mac"
-    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:mac"
-    runtimeOnly "org.openjfx:javafx-controls:$javafx.version:mac"
-    runtimeOnly "org.openjfx:javafx-fxml:$javafx.version:mac"
 }
 
 application {
