@@ -1,4 +1,4 @@
-name: Build for Windows, macOS, and Linux
+name: Build for Windows and Linux
 on: [push, pull_request]
 permissions:
   contents: write
@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
 
     continue-on-error: true
 
@@ -29,7 +29,7 @@ jobs:
 
       - name: Setup Linux
         if: runner.os == 'Linux'
-        run: sudo apt install g++ make zlib1g-dev libgl1-mesa-dev
+        run: sudo apt install g++ make zlib1g-dev libgl1-mesa-dev libxtst-dev libharfbuzz-dev libgtk-3-dev libpango1.0-dev libatk1.0-dev
 
       # Set up GraalVM
       - name: Set up GraalVM
@@ -47,7 +47,7 @@ jobs:
         if: runner.os == 'Windows'
         run: .\gradlew.bat nativeCompile
 
-      - name: Build on macOS/Linux
+      - name: Linux
         if: runner.os != 'Windows'
         run: |
           chmod +x gradlew
@@ -77,14 +77,8 @@ jobs:
         with:
           path: .
 
-      - name: Zip artifacts
-        run: zip -r FMArchipelagoTracker-windows.zip windows-x64
-
       - name: Zip Windows artifacts
         run: zip -r FMArchipelagoTracker-windows.zip windows-latest
-  
-      - name: Zip macOS artifacts
-        run: zip -r FMArchipelagoTracker-macOS.zip macos-latest
   
       - name: Zip Linux artifacts
         run: zip -r FMArchipelagoTracker-linux.zip ubuntu-latest
@@ -97,7 +91,6 @@ jobs:
           draft: false
           files: |
             FMArchipelagoTracker-windows.zip
-            FMArchipelagoTracker-macOS.zip
             FMArchipelagoTracker-linux.zip
           generate_release_notes: true
           body: |
