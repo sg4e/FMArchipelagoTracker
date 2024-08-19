@@ -772,7 +772,7 @@
   "name":"moe.maika.fmaptracker.ConnectController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"onConnect","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"onConnect","parameterTypes":[] }, {"name":"onCancel","parameterTypes":[] }]
 },
 {
   "name":"moe.maika.fmaptracker.FarmController",
