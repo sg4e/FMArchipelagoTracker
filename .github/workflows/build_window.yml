@@ -1,4 +1,4 @@
-name: Build for Windows and Linux
+name: Build native
 on: [push, pull_request]
 permissions:
   contents: write
@@ -80,8 +80,8 @@ jobs:
       - name: Zip Windows artifacts
         run: zip -r FMArchipelagoTracker-windows.zip windows-latest
   
-      - name: Zip Linux artifacts
-        run: zip -r FMArchipelagoTracker-linux.zip ubuntu-latest
+      - name: Tar Linux artifacts
+        run: tar -cjf FMArchipelagoTracker-linux.tar.bz2 ubuntu-latest
 
       - name: Publish release
         uses: softprops/action-gh-release@v1
@@ -91,11 +91,11 @@ jobs:
           draft: false
           files: |
             FMArchipelagoTracker-windows.zip
-            FMArchipelagoTracker-linux.zip
+            FMArchipelagoTracker-linux.tar.bz2
           generate_release_notes: true
           body: |
-            Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+            Windows and Linux builds (x64) of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running on Windows, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 
-            Linux and macOS operating systems are supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
+            The macOS operating system is supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
 
             The latest `apworld` for Archipelago is available at [https://github.com/sg4e/Archipelago/releases](https://github.com/sg4e/Archipelago/releases).

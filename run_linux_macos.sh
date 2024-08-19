@@ -1,5 +1,5 @@
 #!/bin/bash
-export GRAALVM_HOME=graalvm-jdk
-export JAVA_HOME=graalvm-jdk
+export GRAALVM_HOME=bellsoft-liberica-vm-full-openjdk22-24.0.2
+export JAVA_HOME=bellsoft-liberica-vm-full-openjdk22-24.0.2
 
-./mvnw gluonfx:run
+./gradlew run
