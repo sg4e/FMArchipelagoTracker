@@ -37,7 +37,7 @@ application {
 graalvmNative {
     binaries {
         main {
-            imageName = 'FMAchipelagoTracker'
+            imageName = 'FMArchipelagoTracker'
             buildArgs.add("-O4")  // seems to noticeably speed up application
         }
     }
