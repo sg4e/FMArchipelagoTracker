@@ -13,7 +13,7 @@ macOS (x64 and ARM64) is also supported by running from source. 32-bit architect
 How to build and run from source:
 
 1. Clone the repo with `git clone https://github.com/sg4e/FMArchipelagoTracker.git` or by clicking `"Code" > "Download ZIP"` and extracting.
-2. The [Liberica Native Image Kit 24 (JDK 22)](https://bell-sw.com/pages/downloads/native-image-kit/#nik-24-(jdk-22)) is required. Download for your operating system. If using the automated scripts in the next step, extract to the root of the repo and rename to `bellsoft-liberica-vm-full-openjdk22-24.0.2`, if it's not named that way already. Directly inside should be folders `bin`, `conf`, `include`, etc.
+2. The [Liberica Native Image Kit 24 (JDK 22)](https://bell-sw.com/pages/downloads/native-image-kit/#nik-24-(jdk-22)) is required. Download for your operating system. Make sure to select the `Package: JDK Full` version. If using the automated scripts in the next step, extract to the root of the repo and rename to `bellsoft-liberica-vm-full-openjdk22-24.0.2`, if it's not named that way already. Directly inside should be folders `bin`, `conf`, `include`, etc.
 3. Run (double-click) one of the following scripts for your operating system:
     - For Windows, use `run_windows.bat`
     - For Linux and macOS, use `run_linux_macos.sh`
