@@ -264,6 +264,12 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"gg.archipelago.client.network.server.ConnectionRefusedPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"gg.archipelago.client.network.server.ReceivedItemsPacket",
   "allDeclaredFields":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
