@@ -589,7 +589,9 @@ public class TrackerController {
     private boolean isAPProgramData(String path) {
         try {
             Path worldFolder = Paths.get(path, "lib", "worlds");
-            return Files.exists(worldFolder) && Files.isDirectory(worldFolder);
+            Path linuxWorldFolder = Paths.get(path, "worlds");
+            return (Files.exists(worldFolder) && Files.isDirectory(worldFolder))
+                    || (Files.exists(linuxWorldFolder) && Files.isDirectory(linuxWorldFolder));
         }
         catch(Exception e) {
             return false;
