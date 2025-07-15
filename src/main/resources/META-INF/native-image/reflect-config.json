@@ -280,6 +280,11 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"gg.archipelago.client.network.server.RoomUpdatePacket",
+  "allDeclaredFields":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"gg.archipelago.client.parts.NetworkItem",
   "allDeclaredFields":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
