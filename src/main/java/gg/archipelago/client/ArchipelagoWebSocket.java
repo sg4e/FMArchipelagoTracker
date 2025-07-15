@@ -3,6 +3,7 @@ package gg.archipelago.client;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,8 @@ import javax.net.ssl.SSLException;
 
 import org.apache.hc.core5.net.URIBuilder;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.handshake.ServerHandshake;
 
 import com.google.gson.Gson;
@@ -72,7 +75,7 @@ public class ArchipelagoWebSocket extends WebSocketClient {
     private boolean downgrade = false;
 
     public ArchipelagoWebSocket(URI serverUri, ArchipelagoClient archipelagoClient) {
-        super(serverUri);
+        super(serverUri, new Draft_6455(Collections.singletonList(new PerMessageDeflateExtension())));
         this.archipelagoClient = archipelagoClient;
         if (reconnectTimer != null) {
             reconnectTimer.cancel();
