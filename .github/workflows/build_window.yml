@@ -71,10 +71,9 @@ jobs:
           prerelease: false
           draft: false
           files: FMArchipelagoTracker-windows.zip
-          generate_release_notes: true
+          generate_release_notes: false
+          make_latest: 'legacy'
           body: |
+            Legacy release for v1 `apworld`s. **Do not use unless you're on a v1 `apworld` from over a year ago**. For recent `apworld`s, use the [latest release](https://github.com/sg4e/FMArchipelagoTracker/releases/latest) instead.
+            
             Windows (x64) build of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker. If you get errors about missing `.dll`s when running, install the [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
-
-            Linux and macOS operating systems are supported by running from source. Consult the [project's README](https://github.com/sg4e/FMArchipelagoTracker) for directions.
-
-            The latest `apworld` for Archipelago is available at [https://github.com/sg4e/Archipelago/releases](https://github.com/sg4e/Archipelago/releases).
