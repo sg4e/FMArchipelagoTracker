@@ -42,7 +42,7 @@ public abstract class ArchipelagoClient {
     private final ItemManager itemManager;
     private final EventManager eventManager;
 
-    public static final Version protocolVersion = new Version(0, 4, 4);
+    public static final Version protocolVersion = new Version(0, 6, 2);
 
     private int team;
     private int slot;
