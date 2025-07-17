@@ -25,6 +25,7 @@ jobs:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          maven-version: '3.8.8'
 
       # Create a staging directory where the binary will be copied into
       - name: Make staging directory
