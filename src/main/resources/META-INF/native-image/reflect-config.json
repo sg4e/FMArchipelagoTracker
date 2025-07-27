@@ -239,28 +239,118 @@
 {
   "name":"gg.archipelago.client.network.APPacket",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.ConnectionResult",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.DataStorageOperation",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.Permission",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.network.APPacketType",
-  "allDeclaredFields":true
+  "allDeclaredFields":true,
+  "unsafeAllocated": true
 },
 {
   "name":"gg.archipelago.client.network.RemainingMode",
-  "allDeclaredFields":true
+  "allDeclaredFields":true,
+  "unsafeAllocated": true
 },
 {
   "name":"gg.archipelago.client.network.RemainingMode$ForfeitMode",
-  "allDeclaredFields":true
+  "allDeclaredFields":true,
+  "unsafeAllocated": true
+},
+{
+  "name":"gg.archipelago.client.network.client.BouncePacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.network.client.ConnectPacket",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.GetDataPackagePacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.GetPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.LocationChecks",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.LocationScouts",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.SayPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.SetNotifyPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.SetPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.StatusUpdatePacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.client.SyncPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.server.BouncedPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.network.server.ConnectedPacket",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -270,33 +360,87 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"gg.archipelago.client.network.server.ConnectUpdatePacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.server.InvalidPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.server.JsonPrintPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.server.LocationInfoPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.server.PrintPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"gg.archipelago.client.network.server.ReceivedItemsPacket",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.network.server.RoomInfoPacket",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.network.server.RoomUpdatePacket",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.network.server.SetReplyPacket",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.parts.DataPackage",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"gg.archipelago.client.parts.Game",
+  "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.parts.NetworkItem",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.parts.NetworkPlayer",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"gg.archipelago.client.parts.Version",
   "allDeclaredFields":true,
+  "unsafeAllocated": true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
