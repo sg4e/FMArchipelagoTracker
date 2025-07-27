@@ -19,7 +19,7 @@
 package moe.maika.fmaptracker;
 
 public class Version {
-    private static final String VERSION_STRING = "v2.3.5-SNAPSHOT";
+    private static final String VERSION_STRING = "v2.3.5";
 
     private static final int MAJOR, MINOR, PATCH;
 
