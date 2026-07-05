@@ -96,22 +96,16 @@ jobs:
           path: .
 
       - name: Package Windows native
-        run: |
-          cd windows-latest/native
-          zip -r ../../FMArchipelagoTracker-windows-native.zip .
+        run: zip -r FMArchipelagoTracker-windows-native.zip windows-latest/native
 
       - name: Package Windows JRE
-        run: |
-          cd ../jre
-          zip -r ../../FMArchipelagoTracker-windows-jre.zip .
+        run: zip -r FMArchipelagoTracker-windows-jre.zip windows-latest/jre
 
       - name: Package Linux native
-        run: |
-          tar -cjf FMArchipelagoTracker-linux-native.tar.bz2 ubuntu-latest/native
+        run: tar -cjf FMArchipelagoTracker-linux-native.tar.bz2 ubuntu-latest/native
 
       - name: Package Linux JRE
-        run: |
-          tar -cjf FMArchipelagoTracker-linux-jre.tar.bz2 ubuntu-latest/jre
+        run: tar -cjf FMArchipelagoTracker-linux-jre.tar.bz2 ubuntu-latest/jre
 
       - name: Publish release
         uses: softprops/action-gh-release@v1
