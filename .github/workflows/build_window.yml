@@ -17,7 +17,6 @@ jobs:
         os:
           - windows-latest
           - ubuntu-latest
-          - macos-latest
 
     continue-on-error: true
 
@@ -114,14 +113,6 @@ jobs:
         run: |
           tar -cjf FMArchipelagoTracker-linux-jre.tar.bz2 ubuntu-latest/jre
 
-      - name: Package macOS native
-        run: |
-          tar -cjf FMArchipelagoTracker-macos-native.tar.bz2 macos-latest/native
-
-      - name: Package macOS JRE
-        run: |
-          tar -cjf FMArchipelagoTracker-macos-jre.tar.bz2 macos-latest/jre
-
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
@@ -135,11 +126,9 @@ jobs:
             FMArchipelagoTracker-windows-jre.zip
             FMArchipelagoTracker-linux-native.tar.bz2
             FMArchipelagoTracker-linux-jre.tar.bz2
-            FMArchipelagoTracker-macos-native.tar.bz2
-            FMArchipelagoTracker-macos-jre.tar.bz2
 
           body: |
-            Windows, macOS, and Linux builds (x64) of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker.
+            Windows and Linux builds (x64) of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker.
 
             ## Native builds
             Native builds are recommended. These run faster don't require having Java installed.
@@ -154,7 +143,7 @@ jobs:
             Launch using:
 
             - Windows: `bin/FMArchipelagoTracker.bat`
-            - Linux/macOS: `bin/FMArchipelagoTracker`
+            - Linux: `bin/FMArchipelagoTracker`
 
             The latest Archipelago `.apworld` is available at:
             https://github.com/sg4e/Archipelago/releases
