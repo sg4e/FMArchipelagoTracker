@@ -125,7 +125,7 @@ jobs:
             Windows and Linux builds (x64) of the Yu-Gi-Oh! Forbidden Memories Archipelago Tracker.
 
             ## Native builds
-            Native builds are recommended. These run faster don't require having Java installed.
+            Native builds are recommended. These run faster and don't require having Java installed.
 
             **Windows users:** If you receive errors about missing `.dll` files, install the Microsoft Visual C++ Redistributable:
             https://aka.ms/vs/17/release/vc_redist.x64.exe
